@@ -113,11 +113,11 @@ hr {
 
 }
 
-.remodal-img button:hover{
+/*.remodal-img button:hover{
     float: right;
     background: #607d8b;
 
-}
+}*/
 
 
 body {
@@ -229,13 +229,13 @@ progress::-moz-progress-value {
 
 }
 
-.info-header:hover {
+/*.info-header:hover {
     background-color: #d4dee4;
-}
+}*/
 
-.info-unit ul li:hover {
+/*.info-unit ul li:hover {
     background-color: #d4dee4;
-}
+}*/
 
 .info-header .unit-remove {
     float: right;
