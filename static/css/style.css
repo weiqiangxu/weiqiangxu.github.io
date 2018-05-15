@@ -204,7 +204,7 @@ progress::-moz-progress-value {
     position: relative;
     margin: 0 auto;
     width: 1050px;
-    height: 1531px;
+    height: 3060px;
     background-color: white;
 
 }
@@ -291,3 +291,5 @@ ul li{
 .aboutme p{text-indent:2em;margin-bottom: 12px;}
 
 .a_blue{color: #000;text-decoration: none;}
+
+#experience-list{margin-bottom: 200px;}
