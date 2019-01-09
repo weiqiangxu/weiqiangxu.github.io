@@ -6,7 +6,12 @@
     url('../fonts/iconfont.svg#iconfont') format('svg'); /* iOS 4.1- */
 }
 
-
+.bold-p{
+        font-weight: bolder;
+}
+.light-colour{
+    color: rgb(65,65,65);
+}
 .icon-work:before { content: "\eac9"; }
 .icon-project:before { content: "\eaf4"; }
 .icon-phone:before { content: "\ec7a"; }
@@ -204,7 +209,7 @@ progress::-moz-progress-value {
     position: relative;
     margin: 0 auto;
     width: 1050px;
-    height: 3060px;
+    /*height: 3060px;*/
     background-color: white;
 
 }

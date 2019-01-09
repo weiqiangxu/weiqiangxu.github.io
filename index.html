@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>许伟强 - 个人简历</title>
-    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/style.css?v=666">
     <link rel="shortcut icon" href="./static/favicon.ico" type="image/x-icon" />
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remodal/1.1.0/remodal.css"> -->
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remodal/1.1.0/remodal-default-theme.min.css"> -->
 </head>
 <body>
     <div class="container" id="cv">
         <div class="side">
             <div class="me">
                 <div class="portrait">
-                    <img src="./static/image/top.png" width="160px" >
+                    <img src="./static/image/img.jpg" width="160px" >
                 </div>
                 <h1 id="username" >许伟强</h1>
                 <h4 id="persona-tag" >PHP / Web / 程序员</h4>
@@ -91,109 +89,100 @@
                     </li>
                 </ul>
             </div>
-            <div class="work info-unit right-list">
+            <div id="experience-list" class="project info-unit right-list">
                 <h2 class="info-header">
                     <i class="iconfont icon-work"></i>
-                    <span class="info-title">工作经历</span>
-                </h2>
+                    <span class="info-title">工作经历</span></h2>
                 <hr>
                 <ul class="experience-list">
                     <li>
-                        <h3>广州承胜信息技术有限公司 - PHP程序员 ( 2016.7-2016.12 )</h3>
-                        <p>使用ThinkPHP框架开发网站、phpcms二次开发企业官网、基于TPshop开发商城。
+                        <h3>广州市久邦数码科技有限公司 2018.07- </h3>
+                        <p class="bold-p">
+                            1、微信公众号书城、小程序
+                        </p>
+                        <p class="light-colour">
+                            a、开发微信书城wap和小程序
+                            b、商务 - 渠道商和广告商sdk对接，渠道商分成统计、渠道商管理后台功能模块开发
+                            c、运营 - 提供书籍促销打折、充值打折等后台功能模块开发以及上线一些节日活动
+                        </p>
+                        <p class="bold-p">
+                            2、版权输出输出
+                        </p>
+                        <p class="light-colour">
+                            a、版权输出 - 书籍主动推送及其定时任务、被动书籍数据爬取接口开发
+                            b、版权输入 - 书籍爬虫框架搭建及其定时任务
+                        </p>
+                        <p class="bold-p">
+                            3、书城项目稳定性维护
+                        </p>
+                        <p class="light-colour">
+                            a、Kibana的Nginx日志监控及报警系统
+                            b、MySQL慢日志监控及报警系统、数据库主从库等简易的容灾方案实施
+                            c、数据库的存储过程及其定时计划任务
+                            d、PHP慢日志监控及报警
+                            e、Python对Nginx日志实现的流量统计
+                            f、书封批量更新程序
+                            g、solr搜索引擎搭建及维护
                         </p>
                     </li>
                     <li>
-                        <h3>广州宜配信息科技有限公司 - PHP程序员 ( 2017.6~ )</h3>
-                        <p>汽配B2C商城开发、CRM系统维护、数据采集。
-                        </p>
-                    </li>
-                </ul class="experience-list">
-            </div>
-            <div id="experience-list" class="project info-unit right-list">
-                <h2 class="info-header"><i class="iconfont icon-project"></i> <span class="info-title">项目经验</span></h2>
-                <hr>
-                <ul class="experience-list">
-                    <li>
-                        <h3>phpcms二次开发+ThinkPHP建站 2016.07-2016.12</h3>
-                        <p>
-                            柏城KTV、欧仕水净化、方瞳企业官网。窝窝家装修社区、零上campus快递管理网站、TPshop商城二次开发。
-                        </p>
-                        <p>
-                            phpcms二次开发的时候，整合PHPexcel进入实现导入导出以及邮件发送，能够在没有相关文档的情况下看cms的源码进行扩展。
-                        </p>
-                        <p>
-                            ThinkPHP开发的时候，使用阿里云短信开发用户注册登陆、以及阿里云物流接口实现物流查询、以及独立完成项目的数据表设计。
-                        </p>
-                    </li>
-                    <li>
-                        <h3>原生框架-汽配B2C商城</h3>
-                        <p>
+                        <h3>广州宜配信息科技有限公司 2017.06-2018.06</h3>
+                        <p class="bold-p">
                             1、仿淘宝图片空间模块.
                         </p>
-                        <p>
+                        <p class="light-colour">
                             使用ztree、webuploader完成前端页面和交互功能、提供用于ueditor扩展的图片空间模态框调用的的的javascript组件以及相关接口。
                         </p>
-                        <p>
+                        <p class="bold-p">
                             2、购物车模块.
                         </p>
-                        <p>
+                        <p class="light-colour">
                             负责仿照京东完成页面以及相应交互效果并提供购物车统计、购物车数据的接口。比较复杂的是购物车价格的计算，因为会有店铺商品套餐、店铺vip、满减的一些优惠规则，比较繁琐的还是在js的校验规则上。
                         </p>
-                        <p>
+                        <p class="bold-p">
                             3、订单退款
                         </p>
-                        <p>
+                        <p class="light-colour">
                             仿淘宝退款流程的界面、难点在于一个订单内部多个配件情况是可以分开退款的，以及退款之后商家的评分、相关的评论以及相应订单金额的处理，不过在此有关于金钱的统一调用与内部CRM的微信支付接口。
                         </p>
-                        <p>
+                        <p class="bold-p">
                             4、店铺装修
                         </p>
-                        <p>
+                        <p class="light-colour">
                             这个是一个多人协作完成的模块，店铺装修需要考虑后期模块功能改动不影响已经开通好的的店铺以及个性化域名、卖家首页定制服务。。
                         </p>
-                        <p>
+                        <p class="bold-p">
                             5、广告系统
                         </p>
-                        <p>
+                        <p class="light-colour">
                             在首页和搜索页都会有广告布局，考虑后期的扩展，以广告组、广告位为单位，难点在于将关键字与广告位相挂钩，在配件搜索页，同一个广告位依据不同的搜索关键字显示出不同的广告，比如搜索刹车片和滤清器在顶部广告位的广告是不同的依据权重顺序排序。
+                        </p>
+                        <p class="bold-p">
+                            6、数据采集
+                        </p>
+                        <p class="light-colour">
+                            工具包用composer包-guzzle、laravel数据库层illuminate/database、simpleDom构建。
+                            a、网站反爬取-IP地址被禁止访问-使用代理IP池解决；
+                            b、下载页面速度慢-用curl的批处理；
+                            c、下载页面过大导致页面数据丢失-将自己写的curl类换成guzzle，运用guzzle的异步并发下载。
+                            d、解析速度慢-正则匹配获取改为simpledom解析。
+                            e、汽车之家数据是页面JavaScript代码随机生成的类名来渲染的-这个是我踩得最大的坑，正则获取页面JavaScript代码然后phantomjs运行JavaScript代码获取console输出结果得到类名与文字的映射。
+                            f、运行JavaScript太慢又不能多开命令行窗口（MySQL无法锁定行不被读取）运用多线程扩展Pthread并发解析加快速度。
+                        </p>
+                        <p class="bold-p">
+                            7、api文档生成工具
+                        </p>
+                        <p class="light-colour">
+                            用PHP读取商城项目代码之中所有function的注释生成接口文档（HTML格式）。难点在于正则的书写和输出的模板页面，正则匹配花费时间去理解，输出的HTML页面的话，很幸运我找到了一个开源程序phpdoc，于是我将这个开源程序（因为公司项目代码注释非严格遵循phpdoc的标准所以无法使用）的HTML模板和CSS样式拆下来用于输出的Api文档。
                         </p>
                     </li>
                     <li>
-                        <h3>数据爬取+注释文档生成工具(两个工具都在github主页可以看到)</h3>
+                        <h3>广州承胜信息技术有限公司 2016.07-2016.12</h3>
                         <p>
-                            1、数据爬取.
-
+                            1、PHPCMS二次开发企业官网、TPshop二次开发商城、ThinkPHP开发网站。
                         </p>
                         <p>
-                            工具包用composer包-guzzle、laravel数据库层illuminate/database、simpleDom构建。遇到的问题有：
-                        </p>
-                        <p>
-                            a、网站反爬取-IP地址被禁止访问-使用代理IP池解决；
-                        </p>
-                        <p>
-                            b、下载页面速度慢-用curl的批处理；
-                        </p>
-                        <p>
-                            c、下载页面过大导致页面数据丢失-将自己写的curl类换成guzzle，运用guzzle的异步并发下载。
-                        </p>
-                        <p>
-                            d、解析速度慢-正则匹配获取改为simpledom解析。
-                        </p>
-                        <p>
-                            e、汽车之家数据是页面JavaScript代码随机生成的类名来渲染的-这个是我踩得最大的坑，正则获取页面JavaScript代码然后phantomjs运行JavaScript代码获取console输出结果得到类名与文字的映射。
-                        </p>
-                        <p>
-                            f、运行JavaScript太慢又不能多开命令行窗口（MySQL无法锁定行不被读取）运用多线程扩展Pthread并发解析加快速度。
-                        </p>
-                        <p>
-                            2、api文档生成工具
-                        </p>
-                        <p>
-                            用PHP读取商城项目代码之中所有function的注释生成接口文档（HTML格式）。
-                        </p>
-                        <p>
-                            难点在于正则的书写和输出的模板页面，正则匹配花费时间去理解，输出的HTML页面的话，很幸运我找到了一个开源程序phpdoc，于是我将这个开源程序（因为公司项目代码注释非严格遵循phpdoc的标准所以无法使用）的HTML模板和CSS样式拆下来用于输出的Api文档。
+                            2、独立设计表结构、阿里云短信、物流查询、PHPExcel导入导出、邮件通知。
                         </p>
                     </li>
                 </ul>
@@ -213,16 +202,9 @@
                         <h3>职业技能</h3>
                         <p>
                             1、有ThinkPHP框架、原生PHP框架使用经验，初学laravel框架。
-                        </p>
-                        <p>
                             2、注重代码规范地完成模块开发,前端开发规范，注重培养良好编程习惯。
-                        <p>
-                            3、掌握MySQL数据库应用开发以及一些NoSQL数据库基本使用。
-                        </p>
-                        <p>
+                            3、掌握MySQL数据库应用开发以及一些NoSQL数据库基本使用。                        
                             4、掌握Bootstrap前端框架使用，掌握常用jQuery插件的使用。
-                        </p>
-                        <p>
                             5、掌握linux操作系统的基本使用以及lnmp的搭建和配置。
                         </p>
                     </li>
