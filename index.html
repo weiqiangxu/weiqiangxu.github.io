@@ -45,9 +45,6 @@
                     <li>
                         <label class="left-label">Github</label><span class="label-value"><a class="a_blue" href="https://github.com/weiqiangxu" target="_blank">github.com/weiqiangxu</a></span>
                     </li>
-                    <li>
-                        <label class="left-label">博客园</label><span class="label-value"><a class="a_blue" href="http://www.cnblogs.com/xuweiqiang/" target="_blank">cnblogs.com/xuweiqiang</a></span>
-                    </li>
                 </ul>
             </div>
             <div class="stack info-unit">
@@ -112,68 +109,27 @@
                             a、版权输出 - 书籍主动推送及其定时任务、被动书籍数据爬取接口开发
                             b、版权输入 - 书籍爬虫框架搭建及其定时任务
                         </p>
-                        <p class="bold-p">
-                            3、书城项目稳定性维护
-                        </p>
-                        <p class="light-colour">
-                            a、Kibana的Nginx日志监控及报警系统
-                            b、MySQL慢日志监控及报警系统、数据库主从库等简易的容灾方案实施
-                            c、数据库的存储过程及其定时计划任务
-                            d、PHP慢日志监控及报警
-                            e、Python对Nginx日志实现的流量统计
-                            f、书封批量更新程序
-                            g、solr搜索引擎搭建及维护
-                        </p>
                     </li>
                     <li>
                         <h3>广州宜配信息科技有限公司 2017.06-2018.06</h3>
                         <p class="bold-p">
-                            1、仿淘宝图片空间模块.
+                            1、<a href="https://www.paojd.cn/" target="_blank" style="text-decoration:none;">宜配商城</a>开发
+                            
                         </p>
                         <p class="light-colour">
-                            使用ztree、webuploader完成前端页面和交互功能、提供用于ueditor扩展的图片空间模态框调用的的的javascript组件以及相关接口。
-                        </p>
-                        <p class="bold-p">
-                            2、购物车模块.
-                        </p>
-                        <p class="light-colour">
-                            负责仿照京东完成页面以及相应交互效果并提供购物车统计、购物车数据的接口。比较复杂的是购物车价格的计算，因为会有店铺商品套餐、店铺vip、满减的一些优惠规则，比较繁琐的还是在js的校验规则上。
-                        </p>
-                        <p class="bold-p">
-                            3、订单退款
-                        </p>
-                        <p class="light-colour">
-                            仿淘宝退款流程的界面、难点在于一个订单内部多个配件情况是可以分开退款的，以及退款之后商家的评分、相关的评论以及相应订单金额的处理，不过在此有关于金钱的统一调用与内部CRM的微信支付接口。
-                        </p>
-                        <p class="bold-p">
-                            4、店铺装修
-                        </p>
-                        <p class="light-colour">
-                            这个是一个多人协作完成的模块，店铺装修需要考虑后期模块功能改动不影响已经开通好的的店铺以及个性化域名、卖家首页定制服务。。
-                        </p>
-                        <p class="bold-p">
-                            5、广告系统
-                        </p>
-                        <p class="light-colour">
-                            在首页和搜索页都会有广告布局，考虑后期的扩展，以广告组、广告位为单位，难点在于将关键字与广告位相挂钩，在配件搜索页，同一个广告位依据不同的搜索关键字显示出不同的广告，比如搜索刹车片和滤清器在顶部广告位的广告是不同的依据权重顺序排序。
+                            原生框架搭建，前端使用bootstrap，完成任务包括前端和后端。开发过的功能有：仿淘宝图片空间模块、购物车模块、订单模块、店铺装修(多人协作开发个别diy模块)、广告系统、进驻厂商产品数据批量导入导出模块。
                         </p>
                         <p class="bold-p">
                             6、数据采集
                         </p>
                         <p class="light-colour">
-                            工具包用composer包-guzzle、laravel数据库层illuminate/database、simpleDom构建。
-                            a、网站反爬取-IP地址被禁止访问-使用代理IP池解决；
-                            b、下载页面速度慢-用curl的批处理；
-                            c、下载页面过大导致页面数据丢失-将自己写的curl类换成guzzle，运用guzzle的异步并发下载。
-                            d、解析速度慢-正则匹配获取改为simpledom解析。
-                            e、汽车之家数据是页面JavaScript代码随机生成的类名来渲染的-这个是我踩得最大的坑，正则获取页面JavaScript代码然后phantomjs运行JavaScript代码获取console输出结果得到类名与文字的映射。
-                            f、运行JavaScript太慢又不能多开命令行窗口（MySQL无法锁定行不被读取）运用多线程扩展Pthread并发解析加快速度。
+                            爬虫工具包用composer包-guzzle、laravel数据库层illuminate/database和simpleDom构建、phantomjs,支持异步并发下载。
                         </p>
                         <p class="bold-p">
                             7、api文档生成工具
                         </p>
                         <p class="light-colour">
-                            用PHP读取商城项目代码之中所有function的注释生成接口文档（HTML格式）。难点在于正则的书写和输出的模板页面，正则匹配花费时间去理解，输出的HTML页面的话，很幸运我找到了一个开源程序phpdoc，于是我将这个开源程序（因为公司项目代码注释非严格遵循phpdoc的标准所以无法使用）的HTML模板和CSS样式拆下来用于输出的Api文档。
+                            读取商城项目代码注释生成接口文档。。
                         </p>
                     </li>
                     <li>
