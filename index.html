@@ -42,9 +42,9 @@
                         <label class="left-label">电话</label><span class="label-value">18826233660</span></li>
                     <li>
                         <label class="left-label">邮箱</label><span class="label-value">435861851@qq.com</span></li>
-                    <li>
+                    <!-- <li>
                         <label class="left-label">Github</label><span class="label-value"><a class="a_blue" href="https://github.com/weiqiangxu" target="_blank">github.com/weiqiangxu</a></span>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
             <div class="stack info-unit">
@@ -105,39 +105,37 @@
                             g、维护开发与合作方对接的版权输出接口及文档<br/>
                             h、通过Charles抓包、爬虫定期检测竞品软件是否有违规上架未有版权的我们的书籍<br/>
                             i、写PHP脚本检测百度阿拉丁书籍搜索指数排行、神马搜索合作的书籍搜索指数排行<br/>
-                            j、为免费读书软件：IOS-快读小说，Android-免费读书提供接口
-                            k、写脚本书封质量检测、批量更新，检测书籍断章、缺章情况
-                            l、使用phantomjs的Web Server Module提供一个可以获取渲染后html的接口
+                            j、为免费读书软件：IOS-快读小说,Android-免费读书提供接口<br/>
+                            k、写脚本书封质量检测、批量更新,检测书籍断章、缺章情况<br/>
+                            l、使用phantomjs的Web Server Module提供一个可以获取渲染后html的接口<br/>
                         </p>
                         <p class="bold-p">2、技能说明</p>
                         <p class="light-colour">
-                            a、框架常用的是ThinkPHP3.2用过5.1做一些计划任务，绝大部分的脚本使用composer的扩展包搭建，版权爬虫等都是自己搭的小框架，易读易扩展。<br/>
-                            b、书城机器一共121台虚拟机左右，数据库都是主从库，但未作读写分离之类从库仅作灾备使用。每一个业务都是负载2~6台机器<br/>
-                            c、书城是05年跑到现在的，日活曾上千万所以后台SDK以及库表分区分表等都比较完善，有文件服、干净库。搜索引擎使用的是solr，本人还未搭建过solr仅跟负责的同事了解过<br/>
-                            d、除运维团队负责部署系统、权限流量监控等，书城团队使用ELK对流量做一些分析<br/>
-                            e、本人对python不算熟悉，在一些简单的爬虫和广告、游戏合作方平台登陆上使用了，使用的selenium自动化登录，因为qq等平台的登录有点繁琐用这个简单点<br/>
-                            f、lnmp搭建的服务器，每个业务都是负载均衡到2-6台机器左右，新增合作方项目时候改过一次Nginx配置，对于PHP装过扩展以及php的慢日志设定，做过PHP慢日志监控系统<br/>
-                            g、对于Linux懂得lnmp的搭建，php扩展安装，nginx负载均衡配置、fpm配置和写计划任务、rsync指令同步文件<br/>
+                            a、框架常用的是ThinkPHP3.2用过5.1做一些计划任务,绝大部分的脚本使用composer的扩展包搭建,版权爬虫等都是自己搭的小框架,易读易扩展。<br/>
+                            b、书城是05年跑到现在的,日活曾上千万所以后台SDK以及库表分区分表等都比较完善,有文件服、干净库。搜索引擎使用的是solr.<br/>
+                            c、本人对python不算熟悉,在一些简单的爬虫和广告、游戏合作方平台登陆上使用了,使用的selenium自动化登录,因为qq等平台的登录有点繁琐用这个简单点,后台使用了php-webdriver做自动化登录以及tesseract-ocr-for-php做验证码识别,虽然准确率不是很高<br/>
+                            d、在这里对服务号公众号、小程序开发熟悉很多<br/>
+                            e、对于Linux懂得lnmp的搭建,php扩展安装,nginx负载均衡配置、fpm配置和写计划任务、rsync指令同步文件、以及写一些脚本定时任务监控PHP慢日志<br/>
                         </p>
                     </li>
                     <li>
                         <h3>广州宜配信息科技有限公司 2017.06-2018.06</h3>
                         <p class="bold-p">1、做过的一些任务</p>
                         <p class="light-colour">
-                          a、原生框架搭建<a href="https://www.paojd.cn/" target="_blank" style="text-decoration:none;">宜配商城</a>，前端使用bootstrap，完成任务包括前端和后端。
-                          开发过的功能有：仿淘宝图片空间模块（图片批量上传、文件目录树操作效果真的棒棒的）、购物车模块（主要是选择商品有套餐优惠等价格计算比较繁琐）、订单模块（主要调样式累一点，数据合法性验证多一点）、
-                          店铺装修(多人协作开发个别diy模块，这个是一个非常复杂的模块，尤其js、css等都是跟着模块走的)、广告系统（主要库表关系设计复杂一点）、进驻厂商产品数据批量导入导出模块（主要数据验证非常繁琐）。<br/>
-                          b、数据采集,爬虫工具包用composer包-guzzle、laravel数据库层 illuminate/database和simpleDom构建、支持异步并发下载。phantomjs和querylist采集渲染后的HTML，
-                          分布在3台机器，用redis队列分配采集任务（复杂的点是）<br/>
-                          c、写脚本读取商城项目代码注释生成接口文档，（正则写到手软，不过好在公司代码注释规范，文档还是生成出来了，很漂亮哦，个人github主页可以看到）</br>
+                          a、原生框架搭建<a href="https://www.paojd.cn/" target="_blank" style="text-decoration:none;">宜配商城</a>,前端使用bootstrap,完成任务包括前端和后端。
+                          开发过的功能有：仿淘宝图片空间模块（图片批量上传、文件目录树操作效果真的棒棒的）、购物车模块（主要是选择商品有套餐优惠等价格计算比较繁琐）、订单模块（主要调样式累一点,数据合法性验证多一点）、
+                          店铺装修(多人协作开发个别diy模块,这个是一个非常复杂的模块,尤其js、css等都是跟着模块走的)、广告系统（主要库表关系设计复杂一点）、进驻厂商产品数据批量导入导出模块（主要数据验证非常繁琐）。<br/>
+                          b、数据采集,爬虫工具包用composer包-guzzle、laravel数据库层 illuminate/database和simpleDom构建、支持异步并发下载。phantomjs和querylist采集渲染后的HTML,
+                          分布在3台机器,用redis队列分配采集任务（复杂的点是）<br/>
+                          c、写脚本读取商城项目代码注释生成接口文档,（正则写到手软,不过好在公司代码注释规范,文档还是生成出来了,很漂亮哦,个人github主页可以看到）</br>
                         </p>
                         <p class="bold-p">
                             2、技能说明
                         </p>
                         <p class="light-colour">
-                          a、很庆幸在这里用的PHP原生的框架，让我对PHP框架生命周期有一个深刻的认识，以及一些静态化，gzip压缩、反射有一个更深的了解。<br/>
-                          b、在这里对于前端熟悉了很多，ztree\bootstrap\webupload\ueditor等、js控件、做过ueditor二次开发（图片上传使用webupload调公司文件服接口）<br/>
-                          c、PHP方面还有一点就是在这里的代码是非常规范的，接口规范、注释规范、前端js控件规范等（PSR、PHP之道、PHPdoc）<br/>
+                          a、很庆幸在这里用的PHP原生的框架,让我对PHP框架生命周期有一个深刻的认识,以及一些静态化,gzip压缩、反射有一个更深的了解。<br/>
+                          b、在这里对于前端熟悉了很多,ztree\bootstrap\webupload\ueditor等、js控件、做过ueditor二次开发（图片上传使用webupload调公司文件服接口）<br/>
+                          c、PHP方面还有一点就是在这里的代码是非常规范的,接口规范、注释规范、前端js控件规范等（PSR、PHP之道、PHPdoc）<br/>
                         </p>
                     </li>
                     <li>
@@ -159,16 +157,16 @@
                     <li>
                         <h3>为人处世</h3>
                         <p>
-                            积极勤奋，有团队精神，待人真诚。
+                            积极勤奋,有团队精神,待人真诚。
                         </p>
                     </li>
                     <li>
                         <h3>职业技能</h3>
                         <p>
-                            1、有ThinkPHP框架、原生PHP框架使用经验，初学laravel框架。
-                            2、注重代码规范地完成模块开发,前端开发规范，注重培养良好编程习惯。
+                            1、有ThinkPHP框架、原生PHP框架使用经验,初学laravel框架。
+                            2、注重代码规范地完成模块开发,前端开发规范,注重培养良好编程习惯。
                             3、掌握MySQL数据库应用开发以及一些NoSQL数据库基本使用。
-                            4、掌握Bootstrap前端框架使用，掌握常用jQuery插件的使用。
+                            4、掌握Bootstrap前端框架使用,掌握常用jQuery插件的使用。
                             5、掌握linux操作系统的基本使用以及lnmp的搭建和配置。
                         </p>
                     </li>
