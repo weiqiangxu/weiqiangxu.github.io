@@ -1,0 +1,681 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="部署多个网络命名空间并使用GRE隧道通讯">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用tun设备隧道通信">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/08/25/network/%E4%BD%BF%E7%94%A8tun%E8%AE%BE%E5%A4%87%E5%AE%9E%E7%8E%B0VPN%E9%80%9A%E4%BF%A1/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="部署多个网络命名空间并使用GRE隧道通讯">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://weiqiangxu.github.io/images/bg/network.png">
+<meta property="article:published_time" content="2023-08-25T10:40:12.000Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.948Z">
+<meta property="article:author" content="xuweiqiang">
+<meta property="article:tag" content="network">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://weiqiangxu.github.io/images/bg/network.png">
+  
+  
+  
+  <title>使用tun设备隧道通信 - xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/images/bg/computer.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">使用tun设备隧道通信</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-25 18:40" pubdate>
+          2023-08-25, 6:40 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">使用tun设备隧道通信</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="一、概念"><a href="#一、概念" class="headerlink" title="一、概念"></a>一、概念</h3><h5 id="1-什么是TUN设备"><a href="#1-什么是TUN设备" class="headerlink" title="1.什么是TUN设备"></a>1.什么是TUN设备</h5><p>在计算机网络中，TUN 与 TAP 是操作系统内核中的虚拟网络设备。</p>
+<ul>
+<li><p>tun是网络层的虚拟网络设备，可以收发第三层数据报文包，如IP封包，因此常用于一些点对点IP隧道等。</p>
+</li>
+<li><p>tap是链路层的虚拟网络设备，等同于一个以太网设备，它可以收发第二层数据报文包，如以太网数据帧。Tap最常见的用途就是做为虚拟机的网卡，因为它和普通的物理网卡更加相近，也经常用作普通机器的虚拟网卡。</p>
+</li>
+</ul>
+<p>用户空间的程序可以通过 TUN&#x2F;TAP 设备发送数据。常见于基于TUN&#x2F;TAP设备实现的VPN。比如VPN软件在用户空间创建一个TUN&#x2F;TAP设备，并将其配置为将网络流量导入到VPN隧道中。然后，VPN软件可以通过TUN&#x2F;TAP设备读取和写入数据，将它们加密并通过隧道发送到VPN服务器。在服务器端，VPN软件将收到的数据解密并通过TUN&#x2F;TAP设备发送到网络接口，从而实现了VPN连接。</p>
+<h5 id="2-特点"><a href="#2-特点" class="headerlink" title="2.特点"></a>2.特点</h5><p>TUN：三层设备、IP数据包、实现三层的ip隧道<br>TAP：二层设备、MAC地址、通常接入到虚拟交换机(bridge)上作为局域网的一个节点</p>
+<h5 id="3-隧道"><a href="#3-隧道" class="headerlink" title="3.隧道"></a>3.隧道</h5><p>Linux 原生支持多种多种层隧道，大部分底层实现原理都是基于 tun 设备。我们可以通过命令 ip tunnel help 查看 IP 隧道的相关操作。</p>
+<p>Linux 原生一共支持 5 种 IP 隧道（常见的隧道协议）。</p>
+<p>ipip：即 IPv4 in IPv4，在 IPv4 报文的基础上再封装一个 IPv4 报文。<br>gre：即通用路由封装（Generic Routing Encapsulation），定义了在任意一种网络层协议上封装其他任意一种网络层协议的机制，IPv4 和 IPv6 都适用。<br>sit：和 ipip 类似，不同的是 sit 是用 IPv4 报文封装 IPv6 报文，即 IPv6 over IPv4。<br>isatap：即站内自动隧道寻址协议（Intra-Site Automatic Tunnel Addressing Protocol），和 sit 类似，也是用于 IPv6 的隧道封装。<br>vti：即虚拟隧道接口（Virtual Tunnel Interface），是 cisco 提出的一种 IPsec 隧道技术。</p>
+<h5 id="4-用途"><a href="#4-用途" class="headerlink" title="4.用途"></a>4.用途</h5><ol>
+<li>VPN连接：可以将tun设备配置为VPN客户端或服务器，并通过该设备在不同网络之间建立安全的隧道连接，实现远程访问或局域网间互通。tun&#x2F;tap设备最常用的场景是VPN，比较有名的项目有<a target="_blank" rel="noopener" href="https://vtun.sourceforge.net/">vTun</a>、<a target="_blank" rel="noopener" href="https://openvpn.net/">openVPN</a>。</li>
+<li>隧道连接：可以将tun设备配置为网络隧道的一部分，用于将数据从一个网络传输到另一个网络，通常用于连接不同物理网络的互联，如通过互联网连接不同地区的局域网。</li>
+<li>虚拟化网络：可以使用tun设备实现虚拟化网络，通过创建多个tun设备和对应的网络命名空间，可以将不同容器或虚拟机之间隔离的网络连接起来。</li>
+<li>流量监控和过滤：可以使用tun设备来捕获传入和传出的网络流量，并进行流量监控或过滤，例如实现防火墙功能等。</li>
+</ol>
+<p><a href="/images/Tun-tap-osilayers-diagram.png">tun-tap工作层图</a></p>
+<h5 id="5-图解Tun与应用程序"><a href="#5-图解Tun与应用程序" class="headerlink" title="5.图解Tun与应用程序"></a>5.图解Tun与应用程序</h5><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs txt">+----------------------------------------------------------------+<br>|                                                                |<br>|  +--------------------+      +--------------------+            |<br>|  | User Application A |      | User Application B |&lt;-----+     |<br>|  +--------------------+      +--------------------+      |     |<br>|               | 1                    | 5                 |     |<br>|...............|......................|...................|.....|<br>|               ↓                      ↓                   |     |<br>|         +----------+           +----------+              |     |<br>|         | socket A |           | socket B |              |     |<br>|         +----------+           +----------+              |     |<br>|                 | 2               | 6                    |     |<br>|.................|.................|......................|.....|<br>|                 ↓                 ↓                      |     |<br>|             +------------------------+                 4 |     |<br>|             | Newwork Protocol Stack |                   |     |<br>|             +------------------------+                   |     |<br>|                | 7                 | 3                   |     |<br>|................|...................|.....................|.....|<br>|                ↓                   ↓                     |     |<br>|        +----------------+    +----------------+          |     |<br>|        |      eth0      |    |      tun0      |          |     |<br>|        +----------------+    +----------------+          |     |<br>|    10.32.0.11  |                   |   192.168.3.11      |     |<br>|                | 8                 +---------------------+     |<br>|                |                                               |<br>+----------------|-----------------------------------------------+<br>                 ↓<br>         Physical Network<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>tun&#x2F;tap设备的用处是将协议栈中的部分数据包转发给用户空间的应用程序，给用户空间的程序一个处理数据包的机会(数据压缩，加密)</p>
+</blockquote>
+<h3 id="二、VPN"><a href="#二、VPN" class="headerlink" title="二、VPN"></a>二、VPN</h3><ol>
+<li>创建Tun设备</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 虚拟机 1 作为服务端</span><br>sudo ip tuntap add dev tun-server mode tun<br>sudo ip addr add 172.16.1.1/24 dev tun-server<br>sudo ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> tun-server up<br>gcc ./src/c/05-tun-tap/simpletun.c &amp;&amp; sudo ./a.out -d -i tun-server -s<br><br><br><span class="hljs-comment"># 虚拟机 2 作为客户端</span><br>sudo ip tuntap add dev tun-client mode tun<br>sudo ip addr add 172.16.1.2/24 dev tun-client<br>sudo ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> tun-client up<br>gcc ./src/c/05-tun-tap/simpletun.c &amp;&amp; sudo ./a.out -d -i tun-client -c 192.168.57.3<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># ip tuntap add dev tun2 mode tun</span><br>ip netns <span class="hljs-built_in">exec</span> container2 ip tuntap add dev tun2 mode tun<br><br><span class="hljs-comment"># set up tun2</span><br>ip netns <span class="hljs-built_in">exec</span> container2 ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> dev tun2 up<br><br><span class="hljs-comment"># ip addr add &lt;IP地址&gt;/&lt;子网掩码&gt; dev tun2</span><br>ip netns <span class="hljs-built_in">exec</span> container2 ip addr add 172.16.0.8/24 dev tun2<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># ping &lt;B的隧道IP地址&gt;</span><br><span class="hljs-comment"># 验证container1和container2之间通讯</span><br>ip netns <span class="hljs-built_in">exec</span> container1 ping 172.16.0.8<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>通过TUN的IP隧道，在物理网络上构建一条加密隧道。</p>
+</blockquote>
+<h3 id="四、程序监听TUN设备数据"><a href="#四、程序监听TUN设备数据" class="headerlink" title="四、程序监听TUN设备数据"></a>四、程序监听TUN设备数据</h3><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;log&quot;</span><br>	<span class="hljs-string">&quot;os/exec&quot;</span><br><br>	<span class="hljs-string">&quot;github.com/songgao/packets/ethernet&quot;</span><br>	<span class="hljs-string">&quot;github.com/songgao/water&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>	config := water.Config&#123;<br>		DeviceType: water.TUN,<br>	&#125;<br>	config.Name = <span class="hljs-string">&quot;tun-client&quot;</span><br><br>	ifCe, err := water.New(config)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		log.Fatalf(<span class="hljs-string">&quot;new err=%s&quot;</span>, err)<br>	&#125;<br><br>	log.Printf(<span class="hljs-string">&quot;name=%s&quot;</span>, ifCe.Name())<br>	<span class="hljs-keyword">if</span> err := exec.Command(<span class="hljs-string">&quot;ip&quot;</span>, <span class="hljs-string">&quot;link&quot;</span>, <span class="hljs-string">&quot;set&quot;</span>, ifCe.Name(), <span class="hljs-string">&quot;up&quot;</span>).Run(); err != <span class="hljs-literal">nil</span> &#123;<br>		log.Fatalf(<span class="hljs-string">&quot;up err=%s&quot;</span>, err)<br>	&#125;<br>	<span class="hljs-keyword">if</span> err := exec.Command(<span class="hljs-string">&quot;ip&quot;</span>, <span class="hljs-string">&quot;addr&quot;</span>, <span class="hljs-string">&quot;add&quot;</span>, <span class="hljs-string">&quot;10.0.42.1&quot;</span>, <span class="hljs-string">&quot;dev&quot;</span>, ifCe.Name()).Run(); err != <span class="hljs-literal">nil</span> &#123;<br>		log.Fatalf(<span class="hljs-string">&quot;addr add err=%s&quot;</span>, err)<br>	&#125;<br><br>	<span class="hljs-keyword">var</span> frame ethernet.Frame<br><br>	<span class="hljs-keyword">for</span> &#123;<br>		frame.Resize(<span class="hljs-number">1500</span>)<br>		n, err := ifCe.Read([]<span class="hljs-type">byte</span>(frame))<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			log.Fatalf(<span class="hljs-string">&quot;read catch=%s&quot;</span>, err)<br>		&#125;<br>		frame = frame[:n]<br>		log.Printf(<span class="hljs-string">&quot;Dst: %s\n&quot;</span>, frame.Destination())<br>		log.Printf(<span class="hljs-string">&quot;Src: %s\n&quot;</span>, frame.Source())<br>		log.Printf(<span class="hljs-string">&quot;Ethertype: % x\n&quot;</span>, frame.Ethertype())<br>		log.Printf(<span class="hljs-string">&quot;Payload: %s\n&quot;</span>, <span class="hljs-type">string</span>(frame.Payload()))<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="五、tun设备数据转tap经vrouter三层转发"><a href="#五、tun设备数据转tap经vrouter三层转发" class="headerlink" title="五、tun设备数据转tap经vrouter三层转发"></a>五、tun设备数据转tap经vrouter三层转发</h3><h3 id="相关疑问"><a href="#相关疑问" class="headerlink" title="相关疑问"></a>相关疑问</h3><ul>
+<li>客户端使用openvpn访问web服务流程</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://opengers.github.io/openstack/openstack-base-virtual-network-devices-tuntap-veth/">openvpn访问过程</a></p>
+<ul>
+<li>ipv4转发打开持久</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">vim /etc/sysctl.conf<br><br>net.ipv4.ip_forward=1<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>为什么监听container1的网卡veth2时候，container1 ping无输出而container2 ping有输出</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># veth2 的 ip 10.1.1.5</span><br><span class="hljs-comment"># listen veth2 </span><br>ip netns <span class="hljs-built_in">exec</span> container1 tcpdump -nei veth2<br><br><span class="hljs-comment"># 无数据包</span><br>ip netns <span class="hljs-built_in">exec</span> container1 ping 10.1.1.5<br><br><span class="hljs-comment"># 有数据包</span><br>ip netns <span class="hljs-built_in">exec</span> container2 ping 10.1.1.5<br><br><span class="hljs-comment"># lo接口本机ping又有</span><br>ip netns <span class="hljs-built_in">exec</span> container1 tcpdump -nei lo<br>ip netns <span class="hljs-built_in">exec</span> container1 ping 127.0.0.1<br></code></pre></td></tr></table></figure>
+
+<p>tcpdump 只能捕获进入它所在网络命名空间的接口的数据包，而无法捕获离开它所在网络命名空间的接口的数据包。</p>
+<ul>
+<li>命名空间的tun设备如何使用<code>github.com/songgao/water</code>监听</li>
+</ul>
+<p>创建并配置TUN设备：在命名空间中运行以下命令来创建和配置TUN设备：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">&lt;namespace&gt;是命名空间的名称</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">&lt;devicename&gt;是TUN设备的名称</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">&lt;ipaddress&gt;和&lt;netmask&gt;是TUN设备的IP地址和子网掩码</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">&lt;gateway&gt;是TUN设备的默认网关IP地址</span><br>ip netns exec &lt;namespace&gt; ip tuntap add &lt;devicename&gt; mode tun<br>ip netns exec &lt;namespace&gt; ip addr add &lt;ipaddress&gt;/&lt;netmask&gt; dev &lt;devicename&gt;<br>ip netns exec &lt;namespace&gt; ip link set &lt;devicename&gt; up<br>ip netns exec &lt;namespace&gt; ip route add default via &lt;gateway&gt;<br></code></pre></td></tr></table></figure>
+
+<p>编写的golang程序在默认命名空间中运行的应用程序。如果要在命名空间中运行该应用程序，请使用<code>ip netns exec &lt;namespace&gt;</code>来执行golang程序.</p>
+<h3 id="相关文档"><a href="#相关文档" class="headerlink" title="相关文档"></a>相关文档</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1680749">Tun&#x2F;Tap接口使用指导</a></li>
+<li><a target="_blank" rel="noopener" href="https://opengers.github.io/openstack/openstack-base-virtual-network-devices-tuntap-veth/">云计算底层技术-虚拟网络设备(tun&#x2F;tap,veth)</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.baeldung.com/linux/tun-interface-purpose">TUN接口有什么用？</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39094034/article/details/103810351">Linux虚拟网络基础——tun</a></li>
+<li><a target="_blank" rel="noopener" href="https://backreference.org/2010/03/26/tuntap-interface-tutorial/index.html">Tun&#x2F;Tap 接口教程</a></li>
+<li><a target="_blank" rel="noopener" href="https://nsl.cz/using-tun-tap-in-go-or-how-to-write-vpn/">在go中使用TUN&#x2F;TAP或如何编写VPN</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kanocz/lcvpn">https://github.com/kanocz/lcvpn</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.rectcircle.cn/posts/linux-net-virual-05-tunnel/">Linux 网络虚拟化技术（五）隧道技术</a></li>
+<li><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000009249039">Linux虚拟网络设备之tun&#x2F;tap</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/go-gost/gost">https://github.com/go-gost/gost</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/network/" class="category-chain-item">network</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/network/">#network</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>使用tun设备隧道通信</div>
+      <div>https://weiqiangxu.github.io/2023/08/25/network/使用tun设备实现VPN通信/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>August 25, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/09/07/ebpf/%E9%92%A9%E5%AD%90/" title="ebpf钩子">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ebpf钩子</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/08/25/network/ipip%E9%9A%A7%E9%81%93%E9%80%9A%E8%AE%AF/" title="ipip隧道通讯">
+                        <span class="hidden-mobile">ipip隧道通讯</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

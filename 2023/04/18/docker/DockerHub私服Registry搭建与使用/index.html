@@ -1,0 +1,635 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="安装docker-registry建私有镜像仓库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DockerHub私服Registry搭建与使用">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/04/18/docker/DockerHub%E7%A7%81%E6%9C%8DRegistry%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="安装docker-registry建私有镜像仓库">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://weiqiangxu.github.io/images/bg/k8s.webp">
+<meta property="article:published_time" content="2023-04-18T10:40:12.000Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.926Z">
+<meta property="article:author" content="xuweiqiang">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="registry">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://weiqiangxu.github.io/images/bg/k8s.webp">
+  
+  
+  
+  <title>DockerHub私服Registry搭建与使用 - xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/images/bg/5.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">DockerHub私服Registry搭建与使用</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-18 18:40" pubdate>
+          2023-04-18, 6:40 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">DockerHub私服Registry搭建与使用</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="1-本地创建私服镜像目录"><a href="#1-本地创建私服镜像目录" class="headerlink" title="1.本地创建私服镜像目录"></a>1.本地创建私服镜像目录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">mkdir</span> ~/test<br>$ <span class="hljs-built_in">cd</span> ~/test &amp;&amp; <span class="hljs-built_in">mkdir</span> data auth docker-compose<br>$ <span class="hljs-built_in">touch</span> ~/test/docker-compose/docker-compose.yml<br><span class="hljs-comment"># 创建一个用户，执行完成后会生成文件 /home/auth/registry.password</span><br>$ <span class="hljs-built_in">cd</span> ~/test/auth &amp;&amp; htpasswd -Bc registry.password root<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs yml"><span class="hljs-comment"># docker-compose.yml</span><br><span class="hljs-attr">version:</span> <span class="hljs-string">&#x27;3&#x27;</span><br><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">registry:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">registry:2</span><br>    <span class="hljs-attr">ports:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;5001:5000&quot;</span><br>    <span class="hljs-attr">environment:</span><br>      <span class="hljs-attr">REGISTRY_AUTH:</span> <span class="hljs-string">htpasswd</span><br>      <span class="hljs-attr">REGISTRY_AUTH_HTPASSWD_REALM:</span> <span class="hljs-string">MyRegistry</span><br>      <span class="hljs-attr">REGISTRY_AUTH_HTPASSWD_PATH:</span> <span class="hljs-string">/auth/registry.password</span><br>      <span class="hljs-attr">REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY:</span> <span class="hljs-string">/data</span><br>    <span class="hljs-attr">volumes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">~/test/auth:/auth</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">~/test/data:/data</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cd</span> ~/test/docker-compose &amp;&amp; docker-compose up -d<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-访问registy服务"><a href="#2-访问registy服务" class="headerlink" title="2.访问registy服务"></a>2.访问registy服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 访问输入用户名密码 </span><br>$ curl -X GET -u<span class="hljs-string">&#x27;root:123456&#x27;</span> http://localhost:5001/v2/_catalog<br><br><span class="hljs-comment"># 登陆docker registry</span><br>$ docker login localhost:5001<br>Username: root<br>Password: <br>Login Succeeded<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-添加私有库到docker配置"><a href="#3-添加私有库到docker配置" class="headerlink" title="3.添加私有库到docker配置"></a>3.添加私有库到docker配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># /etc/docker/daemon.json or ~/.docker/daemon.json</span><br>&#123;<br> <span class="hljs-string">&quot;insecure-registries&quot;</span>: [<br>   <span class="hljs-string">&quot;localhost:5001&quot;</span><br> ]<br>&#125;<br><br><span class="hljs-comment"># 登陆registry</span><br>$ docker login localhost:5001<br><br><span class="hljs-comment"># 构建镜像到本地</span><br>$ <span class="hljs-built_in">cd</span> my-project &amp;&amp; docker build -t my-image:v0.0.1 .<br><br><span class="hljs-comment"># 推送镜像到harbor私有库</span><br><span class="hljs-comment"># docker push &lt;Registry&gt;/&lt;Image&gt;</span><br>$ docker tag ovs-aline:v0.0.1 localhost:5001/devops/ovs-aline:v0.0.1<br><br><span class="hljs-comment"># docker push registry.example.com/myimage</span><br><span class="hljs-comment"># # 在 ~/test/data/ 目录存放镜像文件</span><br>$ docker push localhost:5001/devops/ovs-aline:v0.0.1<br><br><span class="hljs-comment"># docker pull registry.example.com/myimage</span><br>$ docker pull localhost:5001/devops/ovs-aline:v0.0.1<br><br><span class="hljs-comment"># 查看仓库镜像列表</span><br>$ curl -X GET -u<span class="hljs-string">&#x27;root:123456&#x27;</span> http://localhost:5001/v2/_catalog<br>&#123;<span class="hljs-string">&quot;repositories&quot;</span>:[<span class="hljs-string">&quot;devops/ovs-aline&quot;</span>]&#125;<br><br><span class="hljs-comment"># 查看仓库镜像tag</span><br>$ curl -X GET -u<span class="hljs-string">&#x27;root:123456&#x27;</span> http://localhost:5001/v2/devops/ovs-aline/tags/list<br>&#123;<span class="hljs-string">&quot;name&quot;</span>:<span class="hljs-string">&quot;devops/ovs-aline&quot;</span>,<span class="hljs-string">&quot;tags&quot;</span>:[<span class="hljs-string">&quot;v0.0.1&quot;</span>]&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-web服务提供registy可视化界面"><a href="#4-web服务提供registy可视化界面" class="headerlink" title="4.web服务提供registy可视化界面"></a>4.web服务提供registy可视化界面</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ docker inspect <span class="hljs-variable">$&#123;registry_id&#125;</span><br><br><span class="hljs-comment"># start</span><br>$ docker run -d -p 8080:8080 \<br>  --name registry-web \<br>  --net docker-compose_default \<br>  --<span class="hljs-built_in">link</span> docker-compose-registry-1 \<br>  -e REGISTRY_URL=http://docker-compose-registry-1:5000/v2 \<br>  -e REGISTRY_BASIC_AUTH=<span class="hljs-string">&quot;cm9vdDoxMjM0NTY=&quot;</span> \<br>  -e REGISTRY_NAME=localhost \<br>  hyper/docker-registry-web<br><br><br><span class="hljs-comment"># REGISTRY_BASIC_AUTH其实是一个base64</span><br><span class="hljs-comment"># 对 `username:password` 进行base64 encode</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h3><h5 id="1-htpasswd是什么命令"><a href="#1-htpasswd是什么命令" class="headerlink" title="1.htpasswd是什么命令"></a>1.htpasswd是什么命令</h5><p>htpasswd命令是Apache Web服务器的一个工具，用于创建和管理用户账户文件的命令行工具，可用于创建新用户、更改密码并删除已有用户。</p>
+<h5 id="2-registry的REGISTRY-AUTH-HTPASSWD-REALM参数是干嘛的"><a href="#2-registry的REGISTRY-AUTH-HTPASSWD-REALM参数是干嘛的" class="headerlink" title="2.registry的REGISTRY_AUTH_HTPASSWD_REALM参数是干嘛的"></a>2.registry的REGISTRY_AUTH_HTPASSWD_REALM参数是干嘛的</h5><p>REGISTRY_AUTH_HTPASSWD_REALM参数是用于设置Docker registry的基本认证（Basic Authentication）的HTTP Realm。如果设置了REGISTRY_AUTH_HTPASSWD_REALM参数值为”My Docker Registry”，则用户在登录时将看到类似于”Please enter your My Docker Registry credentials”的提示，有助于确保用户知道他们正在访问受保护的资源。</p>
+<h5 id="3-registry的参数-REGISTRY-STORAGE-FILESYSTEM-ROOTDIRECTORY-是干嘛的"><a href="#3-registry的参数-REGISTRY-STORAGE-FILESYSTEM-ROOTDIRECTORY-是干嘛的" class="headerlink" title="3.registry的参数 REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY 是干嘛的"></a>3.registry的参数 REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY 是干嘛的</h5><p>REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY参数是用于设置Docker registry存储镜像的根目录。默认情况下，Docker registry使用&#x2F;var&#x2F;lib&#x2F;registry作为默认的存储目录。</p>
+<h5 id="4-监听网卡"><a href="#4-监听网卡" class="headerlink" title="4.监听网卡"></a>4.监听网卡</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ sudo tcpdump -nei lo0 port 5001<br>$ telnet 127.0.0.1 5001<br></code></pre></td></tr></table></figure>
+
+<h5 id="5-docker-registry的token"><a href="#5-docker-registry的token" class="headerlink" title="5.docker registry的token"></a>5.docker registry的token</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cat</span> ~/.docker/config.json<br></code></pre></td></tr></table></figure>
+
+<p>对<code>username:password</code>进行base64 encode可以获得。</p>
+<h3 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://hub.docker.com/_/registry">https://hub.docker.com/_&#x2F;registry</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/docker/" class="category-chain-item">docker</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/docker/">#docker</a>
+      
+        <a href="/tags/registry/">#registry</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>DockerHub私服Registry搭建与使用</div>
+      <div>https://weiqiangxu.github.io/2023/04/18/docker/DockerHub私服Registry搭建与使用/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>April 18, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/04/21/kubernetes/%E5%88%B6%E4%BD%9C%E9%95%9C%E5%83%8F%E7%BC%96%E8%AF%91kata/" title="制作镜像编译kata">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">制作镜像编译kata</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/04/18/docker/docker%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85/" title="docker离线安装">
+                        <span class="hidden-mobile">docker离线安装</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

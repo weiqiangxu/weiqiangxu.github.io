@@ -1,0 +1,856 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="使用kubeadm搭建kubenertes环境">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何安装kubernetes">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/04/18/kubernetes/%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85kubernetes/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="使用kubeadm搭建kubenertes环境">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://weiqiangxu.github.io/images/bg/k8s.webp">
+<meta property="article:published_time" content="2023-04-18T10:40:12.000Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.942Z">
+<meta property="article:author" content="xuweiqiang">
+<meta property="article:tag" content="kubernetes">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://weiqiangxu.github.io/images/bg/k8s.webp">
+  
+  
+  
+  <title>如何安装kubernetes - xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/images/bg/5.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">如何安装kubernetes</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-18 18:40" pubdate>
+          2023-04-18, 6:40 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">如何安装kubernetes</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="一、环境准备"><a href="#一、环境准备" class="headerlink" title="一、环境准备"></a>一、环境准备</h3><p>CentOS 7.6 64bit 2核 2G * 2 ( 操作系统的版本至少在7.5以上 )</p>
+<p><a target="_blank" rel="noopener" href="https://v1-26.docs.kubernetes.io/zh-cn/docs/setup/production-environment/container-runtimes/">1.环境准备之 kubernetes v1.26 CRI</a><br><a target="_blank" rel="noopener" href="https://v1-26.docs.kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/">2.使用部署工具kubeadm安装 kubernetes v1.26</a></p>
+<h4 id="1-防火墙"><a href="#1-防火墙" class="headerlink" title="1.防火墙"></a>1.防火墙</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ systemctl stop firewalld<br>$ systemctl <span class="hljs-built_in">disable</span> firewalld<br>$ systemctl status firewalld<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-设置主机名"><a href="#2-设置主机名" class="headerlink" title="2.设置主机名"></a>2.设置主机名</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 在master节点执行</span><br>$ hostnamectl set-hostname k8s-master<br><br><span class="hljs-comment"># 在其他节点执行</span><br>$ hostnamectl set-hostname k8s-node1<br><br><span class="hljs-comment"># 查看当前主机名称</span><br>$ <span class="hljs-built_in">uname</span> -a<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-主机域名解析"><a href="#3-主机域名解析" class="headerlink" title="3.主机域名解析"></a>3.主机域名解析</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 获取本机在本地网络中的ip地址</span><br><span class="hljs-comment"># ifconfig输出的是 网络接口，各个网络接口</span><br><span class="hljs-comment"># 一般是ifconfig的第一个网络接口eth0的ipV4</span><br><span class="hljs-comment"># etho的全称是 Ethernet interface 0,表示第一块以太网网卡的接口</span><br><span class="hljs-comment"># 还有其他网络接口比如docker0(docker创建的虚拟网络接口用于容器之间、容器与主机通信)</span><br><span class="hljs-comment"># 网络接口lo全称是loopback：本地回环接口，主机与自己通话用的</span><br><br><span class="hljs-comment"># ifconfig的eth0的ipV4</span><br><br><span class="hljs-comment"># 注意：这里的IP地址是机器的局域网IP地址</span><br>$ <span class="hljs-built_in">cat</span> &gt;&gt; /etc/hosts &lt;&lt; <span class="hljs-string">EOF</span><br><span class="hljs-string">10.16.203.44 k8s-master</span><br><span class="hljs-string">EOF</span><br><br><span class="hljs-comment"># 查看设置的内容</span><br>$ <span class="hljs-built_in">cat</span> /etc/hosts<br></code></pre></td></tr></table></figure>
+
+<h4 id="4-统一时间"><a href="#4-统一时间" class="headerlink" title="4.统一时间"></a>4.统一时间</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看当前时间</span><br>$ <span class="hljs-built_in">date</span><br><br><span class="hljs-comment"># ntpdate是一个程序</span><br><span class="hljs-comment"># 用于在Linux或其他类Unix操作系统中同步计算机时钟与网络时间协议（NTP）服务器的系统时间</span><br><span class="hljs-comment"># 它可以在启动时自动更新系统时间，或者手动运行以进行时间同步</span><br>$ yum install ntpdate -y<br>$ ntpdate time.windows.com<br></code></pre></td></tr></table></figure>
+
+<h4 id="5-关闭selinux"><a href="#5-关闭selinux" class="headerlink" title="5.关闭selinux"></a>5.关闭selinux</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看是否安装SELinux模块</span><br><span class="hljs-comment"># rpm Linux操作系统上管理RPM软件包的命令行工具</span><br>$ rpm -q selinux-policy<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#查看selinux是否开启</span><br>$ getenforce<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 永久关闭selinux，需要重启</span><br><span class="hljs-comment"># 使用sed工具在/etc/selinux/config文件中查找包含“enforcing”的行并将其替换为“disabled”</span><br>$ sed -i <span class="hljs-string">&#x27;s/enforcing/disabled/&#x27;</span> /etc/selinux/config<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">SELinux（Security-Enhanced Linux） 安全机制，更为细粒度的安全策略控制<br>要查看SELinux是否启用，可以在终端输入以下命令：getenforce<br><br>Enforcing 强制模式<br>Permissive 宽容模式<br>Disabled 被禁用<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-关闭swap分区"><a href="#6-关闭swap分区" class="headerlink" title="6.关闭swap分区"></a>6.关闭swap分区</h4><p>Linux swap分区是一种特殊的分区，为内存不足时提供交换空间，可以将一部分硬盘空间作为虚拟内存使用。当物理内存不足时，系统将部分不常用的数据和进程暂存到swap分区中，以释放物理内存。swap分区对于提高系统的稳定性和可靠性非常重要。</p>
+<p>要查看Linux系统中是否存在swap分区，可以使用以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 没有输出表示当前系统并没有启用swap分区</span><br>$ sudo swapon --show<br><br><span class="hljs-comment"># 关闭已经启用的swap分区</span><br>$ sudo swapoff -a<br><br><span class="hljs-comment"># 重新开启swap分区</span><br>$ sudo swapon -a<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 永久关闭swap分区，需要重启：</span><br><span class="hljs-comment"># 使用sed工具在/etc/fstab文件中查找任何包含“swap”的行</span><br><span class="hljs-comment"># 并在每行前加上“#”注释符，从而将它们全部注释掉</span><br>$ sed -ri <span class="hljs-string">&#x27;s/.*swap.*/#&amp;/&#x27;</span> /etc/fstab<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看包含swap的行是否已经注释</span><br>$ <span class="hljs-built_in">cat</span> /etc/fstab | grep swap<br></code></pre></td></tr></table></figure>
+
+<h4 id="7-启用桥接网络模块的IPv6-IPv4-数据包过滤功能"><a href="#7-启用桥接网络模块的IPv6-IPv4-数据包过滤功能" class="headerlink" title="7.启用桥接网络模块的IPv6\IPv4 数据包过滤功能"></a>7.启用桥接网络模块的IPv6\IPv4 数据包过滤功能</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 启用桥接网络模块的 IPv6 数据包过滤功能</span><br><span class="hljs-comment"># 启用桥接网络模块的 IPv4 数据包过滤功能</span><br><span class="hljs-comment"># 系统会在下次启动时自动加载这些参数</span><br>$ <span class="hljs-built_in">cat</span> &gt; /etc/sysctl.d/k8s.conf &lt;&lt; <span class="hljs-string">EOF</span><br><span class="hljs-string">net.bridge.bridge-nf-call-ip6tables = 1</span><br><span class="hljs-string">net.bridge.bridge-nf-call-iptables = 1</span><br><span class="hljs-string">EOF</span><br><br><span class="hljs-comment"># 重新加载系统参数并应用任何更改</span><br><span class="hljs-comment"># 通常用于修改系统级别的参数，例如内核参数、网络配置等</span><br>$ sysctl --system<br></code></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>安装</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 如果有一些工具没有安装</span><br>$ yum install bridge-utils ebtable<br>$ systemctl restart network.service<br><br><span class="hljs-comment"># 开启bridge相关的内核模块</span><br><span class="hljs-comment"># modprobe是Linux中用于加载内核模块的命令</span><br><span class="hljs-comment"># br_netfilter是Linux内核网络功能的一个模块</span><br><span class="hljs-comment"># 用于实现网络桥接口的内核网络过滤器功能</span><br>$ modprobe br_netfilter<br><br><span class="hljs-comment"># ip_forward控制Linux内核是否开启IP包转发功能</span><br><span class="hljs-comment"># 如果不开启，则无法实现网络之间的数据传输</span><br><span class="hljs-comment"># 开启ip_forward</span><br><span class="hljs-comment"># 更改为1则永久开启IP包转发功能</span><br><span class="hljs-comment"># 将下面的net.ipv4.ip_forward的一行的值更改为1</span><br><span class="hljs-comment"># 如果没有添加一行 net.ipv4.ip_forward = 1</span><br>$ <span class="hljs-built_in">cat</span> /etc/sysctl.conf | grep net.ipv4.ip_forward<br><br><span class="hljs-comment"># 刷新配置</span><br>$ sysctl -p<br><br><span class="hljs-comment"># 验证更改是否成功</span><br>$ sysctl -a | grep net.ipv4.ip_forward<br></code></pre></td></tr></table></figure>
+
+<h3 id="二、安装二进制程序"><a href="#二、安装二进制程序" class="headerlink" title="二、安装二进制程序"></a>二、安装二进制程序</h3><h4 id="1-containerd安装"><a href="#1-containerd安装" class="headerlink" title="1.containerd安装"></a>1.containerd安装</h4><p><a href="https://weiqiangxu.github.io/2023/05/06/k8s/containerd%E5%AE%89%E8%A3%85/">containerd v1.7.0 的安装</a></p>
+<p>更改镜像地址 &#x2F;etc&#x2F;containerd&#x2F;config.yml:</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yml"><span class="hljs-comment"># 注意这里因为网络原因更改sanbox镜像地址否则会无法kubeadm init</span><br>[<span class="hljs-string">plugins.&quot;io.containerd.grpc.v1.cri&quot;</span>]<br>  <span class="hljs-string">sandbox_image</span> <span class="hljs-string">=</span> <span class="hljs-string">&quot;registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.5&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="2-添加kubernetes镜像源"><a href="#2-添加kubernetes镜像源" class="headerlink" title="2.添加kubernetes镜像源"></a>2.添加kubernetes镜像源</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 注意下面的mirrors是区分架构的</span><br><span class="hljs-comment"># 查看当前机器的架构</span><br>$ <span class="hljs-built_in">arch</span><br><br><span class="hljs-comment"># 访问地址 https://mirrors.aliyun.com/kubernetes/yum/repos 获取所有架构镜像源</span><br><span class="hljs-comment"># 更改下面的 baseurl</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 这里需要yum工具</span><br><span class="hljs-comment"># 注意执行之前确保baseurl后面的镜像源架构是否匹配</span><br>$ <span class="hljs-built_in">cat</span> &gt; /etc/yum.repos.d/kubernetes.repo &lt;&lt; <span class="hljs-string">EOF</span><br><span class="hljs-string">[kubernetes]</span><br><span class="hljs-string">name=Kubernetes</span><br><span class="hljs-string">baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64</span><br><span class="hljs-string">enabled=1</span><br><span class="hljs-string">gpgcheck=0</span><br><span class="hljs-string">repo_gpgcheck=0</span><br><span class="hljs-string">gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg</span><br><span class="hljs-string">EOF</span><br><br><span class="hljs-comment"># 更新缓存</span><br>$ yum clean all<br>$ yum makecache<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-安装kubeadm-v1-27-1-kubelet-v1-27-1-kubectl-v1-27-1"><a href="#3-安装kubeadm-v1-27-1-kubelet-v1-27-1-kubectl-v1-27-1" class="headerlink" title="3.安装kubeadm v1.27.1\kubelet v1.27.1\kubectl v1.27.1"></a>3.安装kubeadm v1.27.1\kubelet v1.27.1\kubectl v1.27.1</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 在线安装</span><br>$ yum install -y kubelet-1.27.1 kubeadm-1.27.1 kubectl-1.27.1<br><br><span class="hljs-comment"># 启用kubelet服务,开机自启动</span><br>$ systemctl <span class="hljs-built_in">enable</span> kubelet<br><br>$ kubeadm version -o json<br>$ kubelet --version<br>$ kubectl version -o json<br><br><span class="hljs-comment"># 移除kubelet的CNI网络插件设置</span><br><span class="hljs-comment"># 文件`/var/lib/kubelet/kubeadm-flags.env`中</span><br><span class="hljs-comment"># 将所有的`--network-plugin=cni`字符串替换为空字符串</span><br>$ sed -i <span class="hljs-string">&#x27;s/--network-plugin=cni//&#x27;</span> /var/lib/kubelet/kubeadm-flags.env<br>$ systemctl restart kubelet<br><br><span class="hljs-comment"># 配置在Kubernetes集群中使用Flannel网络插件时的CNI插件参数</span><br><span class="hljs-comment"># Flannel是一种软件定义网络（SDN）解决方案，它使用虚拟网络来连接容器和节点</span><br><span class="hljs-comment"># 需要在集群中的每个节点上配置Flannel CNI插件参数</span><br><span class="hljs-comment"># 以便容器运行环境能够正确使用Flannel网络插件</span><br>$ <span class="hljs-built_in">mkdir</span> -p /etc/cni/net.d<br>$ <span class="hljs-built_in">cat</span> &gt; /etc/cni/net.d/10-flannel.conf &lt;&lt;<span class="hljs-string">EOF</span><br><span class="hljs-string">&#123;</span><br><span class="hljs-string">  &quot;name&quot;: &quot;cbr0&quot;,</span><br><span class="hljs-string">  &quot;cniVersion&quot;: &quot;0.2.0&quot;,</span><br><span class="hljs-string">  &quot;type&quot;: &quot;flannel&quot;,</span><br><span class="hljs-string">  &quot;delegate&quot;: &#123;</span><br><span class="hljs-string">    &quot;isDefaultGateway&quot;: true</span><br><span class="hljs-string">  &#125;</span><br><span class="hljs-string">&#125; </span><br><span class="hljs-string">EOF</span><br></code></pre></td></tr></table></figure>
+
+<p>如果你想要离线安装，二进制文件下载可以访问<a target="_blank" rel="noopener" href="https://kubernetes.io/releases/download/">Kubernetes文档&#x2F;入门&#x2F;下载Kubernetes</a> 或者 <a target="_blank" rel="noopener" href="https://www.downloadkubernetes.com/">https://www.downloadkubernetes.com/</a>，kubeadm和kubectl可以直接离线二进制文件移动至&#x2F;usr&#x2F;bin完成安装，而kubelet需要systemend注册，比较麻烦可以通过离线下载rpm包的方式进行安装.详细说明查看 <a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/kubelet-integration/#the-kubelet-drop-in-file-for-systemd">kubelet 的 systemd drop-in 文件</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 如果需要离线安装建议下载rpm包</span><br>$ sudo yum install yum-utils<br>$ sudo yumdownloader --resolve kubelet-1.27.1 kubeadm-1.27.1 kubectl-1.27.1<br><br><span class="hljs-comment"># 下载后所有的kubelet-1.27.1-0.x86_64.rpm\kubeadm-1.27.1-0.x86_64.rpm等</span><br><span class="hljs-comment"># 以及libnetfilter_cthelper-1.0.0-11.el7.x86_64.rpm之类的依赖</span><br><span class="hljs-comment"># 手动安装文件夹下面所有的rpm包</span><br>$ sudo rpm -ivh *.rpm<br>$ systemctl status kubelet<br></code></pre></td></tr></table></figure>
+
+<h4 id="4-安装CNI插件"><a href="#4-安装CNI插件" class="headerlink" title="4.安装CNI插件"></a>4.安装CNI插件</h4><p>CNI插件是二进制文件移动到系统环境变量里面完成安装，各个架构下的各个版本下载可以访问<a target="_blank" rel="noopener" href="https://github.com/containernetworking/plugins/releases">github.com&#x2F;containernetworking&#x2F;plugins</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># https://github.com/containernetworking/plugins/releases</span><br><span class="hljs-comment"># 进入下载页根据架构选择安装包</span><br>$ <span class="hljs-built_in">arch</span><br>$ aarch64<br><br><span class="hljs-comment"># AArch64是一种ARMv8架构</span><br>$ wget https://github.com/containernetworking/plugins/releases/download/v1.2.0/cni-plugins-linux-arm64-v1.2.0.tgz<br><br><span class="hljs-comment"># 解压至/opt/cni/bin/</span><br>$ tar xvf cni-plugins-linux-arm64-v1.2.0.tgz -C /opt/cni/bin/<br><br><span class="hljs-comment"># or 先解压，后移动bin,注意这个插件很重要</span><br>$ <span class="hljs-built_in">mv</span> /home/cni-plugins-linux-arm64-v1.2.0/* /opt/cni/bin/<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-kubeadm初始化集群"><a href="#6-kubeadm初始化集群" class="headerlink" title="6.kubeadm初始化集群"></a>6.kubeadm初始化集群</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看k8s所需的镜像</span><br>$ kubeadm config images list<br><br><span class="hljs-comment"># 可以提前拉好镜像</span><br>$ kubeadm config images pull --image-repository registry.aliyuncs.com/google_containers<br><br><span class="hljs-comment"># 部署k8s的master节点</span><br><span class="hljs-comment"># apiserver-advertise-address更改为部署master的节点的</span><br><span class="hljs-comment"># 局域网IP地址(默认值是本地网络接口中第一个非回环地址,使用ifconfig查看所有网络接口)</span><br><span class="hljs-comment"># pod-network-cidr 集群中Pod的IP地址段 常用的有10.244.0.0/16</span><br><span class="hljs-comment"># service-cidr.集群中Service的IP地址段.默认为10.96.0.0/12</span><br>$ kubeadm init \<br>  --apiserver-advertise-address=192.168.18.100 \<br>  --image-repository registry.aliyuncs.com/google_containers \<br>  --kubernetes-version v1.27.1 \<br>  --service-cidr=10.96.0.0/12 \<br>  --pod-network-cidr=10.244.0.0/16<br><br><br><span class="hljs-comment"># 可以使用简单版本 ,apiserver-advertise-address使用默认值</span><br><span class="hljs-comment"># 注意v1.27.1搭配docker需要额外安装cri-dockerd </span><br>$ kubeadm init \<br>  --apiserver-advertise-address=10.16.203.44 \<br>  --image-repository registry.aliyuncs.com/google_containers \<br>  --kubernetes-version v1.27.1 \<br>  --service-cidr=10.96.0.0/12 \<br>  --pod-network-cidr=10.244.0.0/16 \<br>  --v=5<br><br><span class="hljs-comment">### kubueadm init 失败的时候</span><br>$ kubeadm reset<br><br><span class="hljs-comment"># 重新init的时候带上 --v=5 查看详细</span><br><br><span class="hljs-comment"># kubeadm生成默认配置并且用来启动</span><br>$ kubeadm config <span class="hljs-built_in">print</span> init-defaults &gt; init.default.yaml<br>$ kubeadm init --config=init.default.yaml<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 在你执行kubectl get ns之前拷贝一下配置</span><br><span class="hljs-comment"># 在你执行kubectl get ns之前拷贝一下配置</span><br><span class="hljs-comment"># 在你执行kubectl get ns之前拷贝一下配置</span><br><br>[root@k8s-master ~]<span class="hljs-comment"># mkdir -p $HOME/.kube</span><br>[root@k8s-master ~]<span class="hljs-comment"># sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br>[root@k8s-master ~]<span class="hljs-comment"># sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br>[root@k8s-master ~]<span class="hljs-comment"># kubectl get pod</span><br><br><span class="hljs-comment"># 否则会抛异常</span><br><br>[root@k8s-master home]<span class="hljs-comment"># kubectl get pod</span><br>W0522 18:32:07.948191  915987 request.go:1480] the not healthz host trigger to upate base url: localhost:8080:6443<br>W0522 18:32:07.950403  915987 request.go:1480] the not healthz host trigger to upate base url: localhost:8080:6443<br>W0522 18:32:07.952802  915987 request.go:1480] the not healthz host trigger to upate base url: localhost:8080:6443<br>W0522 18:32:07.955076  915987 request.go:1480] the not healthz host trigger to upate base url: localhost:8080:6443<br>W0522 18:32:07.957487  915987 request.go:1480] the not healthz host trigger to upate base url: localhost:8080:6443<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@i-C5B261D3 home]<span class="hljs-comment"># kubeadm version</span><br>kubeadm version: &amp;version.Info&#123;Major:<span class="hljs-string">&quot;1&quot;</span>, Minor:<span class="hljs-string">&quot;22&quot;</span>, GitVersion:<span class="hljs-string">&quot;v1.22.21&quot;</span>, GitCommit:<span class="hljs-string">&quot;ca62f64bd6397f9ab41f68c22d2d48d87d8edb91&quot;</span>, GitTreeState:<span class="hljs-string">&quot;clean&quot;</span>, BuildDate:<span class="hljs-string">&quot;2023-01-15T13:33:59Z&quot;</span>, GoVersion:<span class="hljs-string">&quot;go1.17.1&quot;</span>, Compiler:<span class="hljs-string">&quot;gc&quot;</span>, Platform:<span class="hljs-string">&quot;linux/arm64&quot;</span>&#125;<br><br><br><span class="hljs-comment"># 这个不知道为啥 </span><br><span class="hljs-comment"># 为啥 kube-controller-manager 和 kube-scheduler 是Exited的状态</span><br>[root@k8s-master home]<span class="hljs-comment"># crictl ps -a</span><br>CONTAINER           IMAGE               CREATED             STATE               NAME                      ATTEMPT             POD ID<br>d529ea99a5dda       20654f2150dd5       6 seconds ago       Exited              kube-controller-manager   2                   26d5a6aaca513<br>bcb291b686f32       717e2b2b33bd0       6 seconds ago       Exited              kube-scheduler            16                  93a27ed44a6fb<br>efed94a74ba8c       78d0a9e0b092c       17 seconds ago      Running             kube-apiserver            2                   48c0c294eeeca<br>924e523f0b13c       2252d5eb703b0       17 seconds ago      Running             etcd                      4                   0fe680e794e71<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs yml"><span class="hljs-comment"># 生成的 init.default.yaml 配置</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">kubeadm.k8s.io/v1beta3</span><br><span class="hljs-attr">bootstrapTokens:</span><br><span class="hljs-bullet">-</span> <span class="hljs-attr">groups:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">system:bootstrappers:kubeadm:default-node-token</span><br>  <span class="hljs-attr">token:</span> <span class="hljs-string">abcdef.0123456789abcdef</span><br>  <span class="hljs-attr">ttl:</span> <span class="hljs-string">24h0m0s</span><br>  <span class="hljs-attr">usages:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">signing</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-string">authentication</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">InitConfiguration</span><br><span class="hljs-attr">localAPIEndpoint:</span><br>  <span class="hljs-comment"># 1.更改为当前局域网IP地址</span><br>  <span class="hljs-attr">advertiseAddress:</span> <span class="hljs-number">10.16</span><span class="hljs-number">.203</span><span class="hljs-number">.44</span><br>  <span class="hljs-attr">bindPort:</span> <span class="hljs-number">6443</span><br><span class="hljs-attr">nodeRegistration:</span><br>  <span class="hljs-comment"># 2.更改CRI，默认是docker如果用containerd需要更改</span><br>  <span class="hljs-attr">criSocket:</span> <span class="hljs-string">/run/containerd/containerd.sock</span><br>  <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">IfNotPresent</span><br>  <span class="hljs-comment"># 3.更改为hostname</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">k8s-master</span><br>  <span class="hljs-attr">taints:</span> <span class="hljs-literal">null</span><br><span class="hljs-meta">---</span><br><span class="hljs-attr">apiServer:</span><br>  <span class="hljs-attr">timeoutForControlPlane:</span> <span class="hljs-string">4m0s</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">kubeadm.k8s.io/v1beta3</span><br><span class="hljs-attr">certificatesDir:</span> <span class="hljs-string">/etc/kubernetes/pki</span><br><span class="hljs-attr">clusterName:</span> <span class="hljs-string">kubernetes</span><br><span class="hljs-attr">controllerManager:</span> &#123;&#125;<br><span class="hljs-attr">dns:</span> &#123;&#125;<br><span class="hljs-attr">etcd:</span><br>  <span class="hljs-attr">local:</span><br>    <span class="hljs-attr">dataDir:</span> <span class="hljs-string">/var/lib/etcd</span><br><span class="hljs-comment"># 4.更改镜像为国内镜像</span><br><span class="hljs-attr">imageRepository:</span> <span class="hljs-string">registry.aliyuncs.com/google_containers</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">ClusterConfiguration</span><br><span class="hljs-comment"># 5.更改目标kubernetes版本</span><br><span class="hljs-attr">kubernetesVersion:</span> <span class="hljs-number">1.22</span><span class="hljs-number">.0</span><br><span class="hljs-attr">networking:</span><br>  <span class="hljs-attr">dnsDomain:</span> <span class="hljs-string">cluster.local</span><br>  <span class="hljs-comment"># 6.设置集群中Pod的IP地址段</span><br>  <span class="hljs-attr">podSubnet:</span> <span class="hljs-number">172.16</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><span class="hljs-string">/16</span><br>  <span class="hljs-comment"># 7.设置集群中Service的IP地址段</span><br>  <span class="hljs-attr">serviceSubnet:</span> <span class="hljs-number">10.96</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><span class="hljs-string">/12</span><br><span class="hljs-attr">scheduler:</span> &#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 执行初始化集群，如果已经初始化集群的则 kubeadm reset 一下</span><br><span class="hljs-comment"># 注意：kubeadm reset 不会删除 $HOME/.kube</span><br><span class="hljs-comment"># 所以 kubeadm reset之后手动删除 $HOME/.kube</span><br>$ kubeadm init --config=init.default.yaml<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p> kubeadm reset之后手动删除 $HOME&#x2F;.kube</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看集群所有容器</span><br>$ crictl ps -a<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 为啥 <code>ctr c list</code> 查看不到k8s的所有容器呢</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看contianerd是否正常</span><br><span class="hljs-comment"># 可能看到/etc/containerd/config.yml的sandbox_image pull fail</span><br><span class="hljs-comment"># 可以改成 registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.5</span><br>$ journalctl -xeu containerd --no-pager<br><br><span class="hljs-comment"># 监听containerd</span><br>$ journalctl -xeu kubelet -f<br>$ journalctl -xeu containerd -f<br><br><span class="hljs-comment"># 查看是否有containerd的镜像启动</span><br>$ ctr --<span class="hljs-built_in">help</span><br></code></pre></td></tr></table></figure>
+
+
+<p><a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/container-runtimes/#docker">k8s v1.27.1默认移除dockershim，需要安装cri-dockerd</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建成功输出</span><br>$ Your Kubernetes control-plane has initialized successfully!<br><br>$ kubeadm <span class="hljs-built_in">join</span> 192.168.1.1:6443 --token xxx.xx \<br>    --discovery-token-ca-cert-hash sha256:xxx<br></code></pre></td></tr></table></figure>
+
+<h4 id="7-配置kubectl环境"><a href="#7-配置kubectl环境" class="headerlink" title="7.配置kubectl环境"></a>7.配置kubectl环境</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 配置信息指定Kubernetes API的访问地址、认证信息、命名空间、资源配额以及其他配置参数</span><br>$ <span class="hljs-built_in">mkdir</span> -p <span class="hljs-variable">$HOME</span>/.kube<br><br><span class="hljs-comment"># 将admin.conf复制到当前用户的$HOME/.kube/config</span><br><span class="hljs-comment"># kubectl命令在使用时默认使用该文件</span><br><span class="hljs-comment"># 否则使用kubectl命令时必须明确指定配置文件路径或设置环境变量</span><br>$ sudo <span class="hljs-built_in">cp</span> -i /etc/kubernetes/admin.conf <span class="hljs-variable">$HOME</span>/.kube/config<br><br><span class="hljs-comment"># 将配置文件的所有权赋予给当前用户</span><br>$ sudo <span class="hljs-built_in">chown</span> $(<span class="hljs-built_in">id</span> -u):$(<span class="hljs-built_in">id</span> -g) <span class="hljs-variable">$HOME</span>/.kube/config<br></code></pre></td></tr></table></figure>
+
+<h3 id="三、部署集群中Flannel网络插件"><a href="#三、部署集群中Flannel网络插件" class="headerlink" title="三、部署集群中Flannel网络插件"></a>三、部署集群中Flannel网络插件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看节点状态</span><br>$ kubectl get nodes<br><br><span class="hljs-comment"># 使用kubectl工具将kube-flannel.yml文件中定义的Flannel网络插件之中</span><br><span class="hljs-comment"># Deployment、DaemonSet、ServiceAccount等Kubernetes资源部署到集群中</span><br><span class="hljs-comment"># 从而为集群中的宿主机和容器、容器间提供网络互联功能</span><br>$ wget https://github.com/flannel-io/flannel/releases/download/v0.21.5/kube-flannel.yml<br>$ kubectl apply -f kube-flannel.yml<br><br><span class="hljs-comment"># 查看集群pods确认是否成功</span><br>$ kubectl get pods -n kube-system<br><br><span class="hljs-comment"># 查看集群健康状况(显示了控制平面组件</span><br><span class="hljs-comment"># Control Plane Component）的健康状态</span><br><span class="hljs-comment"># etcd/kube-apiserver/kube-controller-manager/kube-scheduler</span><br>$ kubectl get cs<br><br><span class="hljs-comment"># 显示集群的相关信息(DNS\证书\密钥等)</span><br>$ kubectl cluster-info<br></code></pre></td></tr></table></figure>
+
+<p>kubectl怎么安装flannel的,新添加的节点又是如何安装flannel的呢,在文件夹&#x2F;etc&#x2F;cni&#x2F;net.d的配置是如何拷贝的呢,请访问<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/450140876">K8s网络之深入理解CNI</a></p>
+<h3 id="四、部署nginx服务测试集群"><a href="#四、部署nginx服务测试集群" class="headerlink" title="四、部署nginx服务测试集群"></a>四、部署nginx服务测试集群</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 部署Nginx</span><br>$ kubectl create deployment nginx --image=nginx:1.14-alpine<br><br><span class="hljs-comment"># 暴露端口</span><br>$ kubectl expose deployment nginx --port=80 --<span class="hljs-built_in">type</span>=NodePort<br><br><span class="hljs-comment"># 查看服务状态需要看到nginx服务为running</span><br>$ kubectl get pods,svc<br><br><span class="hljs-comment"># 访问nginx服务需要看到输出Welcome to nginx!</span><br>$ curl k8s-master:30185<br></code></pre></td></tr></table></figure>
+
+<h3 id="五、其他节点部署服务并加入到集群之中"><a href="#五、其他节点部署服务并加入到集群之中" class="headerlink" title="五、其他节点部署服务并加入到集群之中"></a>五、其他节点部署服务并加入到集群之中</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># worker node 安装Docker/kubeadm/kubelet/kubectl</span><br><span class="hljs-comment"># master节点生成token(2小时过期)</span><br>$ kubeadm token create --print-join-command<br><br><span class="hljs-comment"># master节点生成一个永不过期的token</span><br>$ kubeadm token create --ttl 0 --print-join-command<br><br><span class="hljs-comment"># 在worker node执行</span><br><span class="hljs-comment"># --token：用于新节点加入集群的令牌</span><br><span class="hljs-comment"># --discovery-token-ca-cert-hash：用于验证令牌的证书哈希值(集群初始化生成)</span><br><span class="hljs-comment"># --control-plane：如果要将新节点添加到控制平面，则需要指定此选项</span><br><span class="hljs-comment"># --node-name：指定新节点的名称</span><br>$ kubeadm <span class="hljs-built_in">join</span> 192.168.18.100:6443 \<br>    --token xxx \<br>    --discovery-token-ca-cert-hash sha256:xxx<br></code></pre></td></tr></table></figure>
+
+<h3 id="六、相关疑问"><a href="#六、相关疑问" class="headerlink" title="六、相关疑问"></a>六、相关疑问</h3><ul>
+<li>kubeadmn如何重新初始化</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ kubeadm reset<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>查看pod详情</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ kubectl describe pod <span class="hljs-variable">$pod_name</span><br>$ kubectl describe pod nginx-deployment-xxx<br>$ kubectl describe pod mongodb -n NamespaceName<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>run&#x2F;flannel&#x2F;subnet.env无法找到</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 当错误是/run/flannel/subnet.env无法找到时候手动创建subnet.env内容是</span><br>$ FLANNEL_NETWORK=10.244.0.0/16<br>$ FLANNEL_SUBNET=10.244.0.1/24<br>$ FLANNEL_MTU=1450<br>$ FLANNEL_IPMASQ=<span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>docker离线安装包</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs txt">Docker离线安装包官方下载链接：<br>Docker Engine: https://docs.docker.com/engine/install/binaries/<br>Docker Compose: https://github.com/docker/compose/releases<br>Docker Machine: https://github.com/docker/machine/releases<br>注意：离线安装包的下载可能比在线安装包的下载时间更长，建议选择适合自己网络和设备的安装方式。<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>路径的docker.repo是干嘛的</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cd</span> /etc/yum.repos.d/docker.repo <br><br><span class="hljs-comment"># etc/yum.repos.d/docker.repo 是一个yum源配置文件，用于添加docker的官方仓库到yum源中。</span><br><span class="hljs-comment"># 通过该文件，可以使用yum命令在CentOS/RHEL系统中安装、更新、卸载docker软件包</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>ebtables  和bridge-utils 是干嘛的</p>
+<p> ebtables是一种基于Linux内核的防火墙软件，可以实现在数据包到达网络接口之前或之后对其进行过滤、修改等操作。ebtables是专门用于网桥设备的防火墙，可以识别和处理以太网帧，可以基于MAC地址、VLAN标签等进行过滤和转发操作。</p>
+<p> bridge-utils是一组用于配置和管理Linux内核中的网络桥设备的命令行工具。它可以进行网桥的创建、删除、配置等操作。bridge-utils提供了一些命令行工具，例如brctl，可以用来查询、设置和管理网络桥接口，如添加和删除网桥、添加和删除网桥端口、设置网桥参数等。通过bridge-utils，用户可以方便地搭建以太网桥接网络，实现不同物理网络间的数据转发和通信。</p>
+</li>
+<li><p>Failed to download metadata for repo ‘docker-ce-stable</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cd</span> /etc/yum.repos.d<br>$ <span class="hljs-built_in">rm</span> -rf docker*<br>$ yum update<br>$ yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>yum-config-manager –add-repo干嘛用的</li>
+</ul>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs lua">yum-<span class="hljs-built_in">config</span>-manager <span class="hljs-comment">--add-repo用于添加一个新的yum软件源地址，并将其保存在yum配置文件中</span><br>以便yum命令可以从该软件源中下载和安装软件包。该命令可以帮助用户获得更多的软件源<br>以便在软件包依赖项解决方案中更好地满足其需求。<br></code></pre></td></tr></table></figure>
+<ul>
+<li>kubueadm 的–pod-network-cidr是什么</li>
+</ul>
+<p>“kubeadm –pod-network-cidr” 是一个命令行参数，用于指定 Kubernetes 集群中 Pod 网络的 CIDR 范围。这个参数需要在初始化 Kubernetes 集群时使用，在部署网络插件时使用。Pod 网络 CIDR 是一个 IP 地址段，用于定义 Kubernetes 集群中 Pod 之间通信的网络地址。这个 CIDR 范围定义了 Kubernetes 集群中 Pod 网络的 IP 地址。常见的 CIDR 范围包括 10.244.0.0&#x2F;16、172.16.0.0&#x2F;16 等。正确设置 Pod 网络 CIDR 很重要，因为它对 Kubernetes 集群的网络和通信架构有重要的影响。</p>
+<ul>
+<li>kuernetes.repo</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># repo地址</span><br><span class="hljs-built_in">cat</span> /etc/yum.repos.d/kubernetes.repo<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> &lt;&lt; <span class="hljs-string">EOF &gt; /etc/yum.repos.d/kubernetes.repo </span><br><span class="hljs-string">[kubernetes]</span><br><span class="hljs-string">name=Kubernetes</span><br><span class="hljs-string">baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/</span><br><span class="hljs-string">enabled=1</span><br><span class="hljs-string">gpgcheck=1</span><br><span class="hljs-string">repo_gpgcheck=1</span><br><span class="hljs-string">gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg</span><br><span class="hljs-string">EOF</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>kube-flannel是干嘛的</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">kube-flannel是一个CNI插件，用于为Kubernetes集群创建和管理网络。<br>它提供了一种简单而有效的方法，让容器在不同节点上进行通信，而无需手动配置网络。<br>kube-flannel使用VXLAN或UDP封装技术来创建一个覆盖整个集群的扁平网络，<br>使得Kubernetes Pod能够互相通信，同时确保网络性能的高效和可靠性。<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>k8s的控制平面有哪些</li>
+</ul>
+<ol>
+<li>kube-apiserver：Kubernetes API服务器，提供Kubernetes API的访问入口，以及对Kubernetes内部对象的认证、授权和验证。</li>
+<li>etcd：Kubernetes使用etcd作为其默认的分布式键值存储系统，用于存储Kubernetes集群的所有配置数据、元数据和状态信息。</li>
+<li>kube-scheduler：负责将新创建的Pod调度到集群中的Node上，选择最佳的Node来运行Pod。</li>
+<li>kube-controller-manager：Kubernetes控制器管理器，包含了多个控制器，用于自动化管理Kubernetes集群中的各种资源和对象。</li>
+<li>cloud-controller-manager：云控制器管理器，负责管理云平台上的资源，如EC2、ELB等，并将这些资源与Kubernetes集群进行集成。</li>
+</ol>
+<blockquote>
+<p>这些组件共同组成了Kubernetes控制平面，负责管理和控制整个Kubernetes集群的运行状态。</p>
+</blockquote>
+<ul>
+<li>检查 IP 为 192.168.1.1 的计算机的端口 80 是否开放</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ yum install telnet<br>$ telnet 192.168.1.1 80<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>kubectl get svc的输出解释</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ NAME：Service名称。<br>$ TYPE：Service类型。通常有ClusterIP、NodePort、LoadBalancer和ExternalName四种类型。<br>$ CLUSTER-IP：Service的Cluster IP地址。<br>$ EXTERNAL-IP：Service的外部IP地址（仅适用于LoadBalancer类型）。<br>$ PORT(S)：Service暴露的端口号和协议。<br>$ AGE：Service被创建后的时间。<br><br>例如，以下是一段`kubectl get svc`命令的输出结果：<br><br>NAME           TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)          AGE<br>my-service     ClusterIP      10.0.0.5        &lt;none&gt;          80/TCP           5d<br>app-service    LoadBalancer   10.0.0.15       203.0.113.10   80:30000/TCP     2d<br><br>解释：<br><br>$ `my-service`是一个ClusterIP类型的Service，其Cluster IP地址为`10.0.0.5`，暴露的端口号为80/TCP。<br>$ `app-service`是一个LoadBalancer类型的Service，其Cluster IP地址为`10.0.0.15`<br>    暴露的端口号为80/TCP，同时外部IP地址为`203.0.113.10`，将请求转发到NodePort `30000`上<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>kubeadm config print init-defaults</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs txt">kubeadm config print init-defaults 是一个命令，用于打印 kubeadm 初始化时的默认配置。<br>这个命令可以帮助用户了解 kubeadm 在默认情况下会使用哪些配置，以及这些配置如何影响 Kubernetes 集群的部署和运行。<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>containerd出现异常 failed to pull and unpack image “registry.k8s.io&#x2F;pause:3.8”</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 镜像拉取失败</span><br>$ ctr image pull registry.k8s.io/pause:3.8<br><br><span class="hljs-comment"># 需要配置sanbox为</span><br>sandbox_image = <span class="hljs-string">&quot;registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.5&quot;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>kubeadm init的时候监听日志</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ journalctl -xeu kubelet -f<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://docker-practice.github.io/zh-cn/kubernetes/setup/kubeadm.html">使用 kubeadm 部署 kubernetes(CRI 使用 containerd)</a></p>
+<ul>
+<li>linux怎么样验证一个端口通不通</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># telnet</span><br>$ telnet <span class="hljs-variable">$&#123;IP地址&#125;</span> <span class="hljs-variable">$&#123;端口号&#125;</span><br>$ telnet 192.168.1.10 80<br><br><span class="hljs-comment"># success</span><br>$ Connected to <span class="hljs-variable">$ip</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>telnet 127.0.0.1 30022 出现Connection refused</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 没有运行正在监听30022端口的服务或防火墙等安全设置阻止了连接</span><br>$ sudo firewall-cmd --state<br>$ sudo firewall-cmd --list-ports<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>只有master节点无法调度怎么办</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 获取节点信息</span><br>$ kubuctl get node<br><br><span class="hljs-comment"># 查看当前mster节点所有taint</span><br><span class="hljs-comment"># 输出之中所有的Taints:node.kubernetes.io/not-ready:NoExecute...</span><br>$ kubectl describe node<br><br><span class="hljs-comment"># 取消标记语法</span><br>$ kubectl taint nodes &lt;master-node-name&gt; node-role.kubernetes.io/master:NoSchedule-<br><br><span class="hljs-comment"># 取消2个标记</span><br>$ kubectl taint nodes k8s-master node.kubernetes.io/not-ready:NoExecute-<br>$ kubectl taint nodes k8s-master node.kubernetes.io/not-ready:NoSchedule-<br>$ kubectl taint nodes k8s-master node-role.kubernetes.io/master:NoSchedule-<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>k8s会默认设置Taints在主节点吗</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 给主节点打上一个Key为`node-role.kubernetes.io/master`，value为`NoSchedule`的Taint，即在主节点上设置Taints</span><br><span class="hljs-comment"># kubectl taint nodes `master-node-name` node-role.kubernetes.io/master=:NoSchedule</span><br><br>默认情况下，Kubernetes会在主节点上设置Taints。这是为了确保主节点不被普通的Pod调度和运行。<br>只有具有对应Tolerations的Pod才能被调度和运行在主节点上。<br>这可以确保主节点保持稳定和安全，防止普通的Pod对主节点产生负面影响。<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>yum怎么下载rpm安装包</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ sudo yum install yum-utils<br>$ sudo yumdownloader --resolve docker-ce-18.06.3.ce-3.el7<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Port 10250 is in use</li>
+</ul>
+<blockquote>
+<p>$ kubeadm reset</p>
+</blockquote>
+<ul>
+<li>k8s的默认CNI配置在哪里获取</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs log">默认情况下，Kubernetes使用CNI插件来管理容器网络，其中包括常见的插件如Flannel、Calico、Weave Net等。<br><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>linux 的 &#x2F;etc&#x2F;cni&#x2F;net.d&#x2F; 里面的配置是干嘛的</li>
+</ul>
+<p>&#x2F;etc&#x2F;cni&#x2F;net.d&#x2F;目录是用于存放Kubernetes CNI插件的配置文件的，默认情况下是在kubelet启动时从这个目录读取配置文件。Kubernetes的默认CNI插件是<code>kubelet</code>在启动时自动加载。在使用kubelet启动Kubernetes集群时，kubelet会检查<code>/etc/cni/net.d/</code>目录中是否存在<code>10-kubenet.conf</code>或<code>10-bridge.conf</code>文件。CNI插件是Kubernetes系统中用于管理网络的组件，它可以为不同的Pod分配IP地址、创建和删除网络接口等操作。在该目录下，可以指定使用哪一个CNI插件，并为该插件提供相应的配置参数，例如网络类型、IP地址池、MTU等等。不同的CNI插件有不同的配置方式，但这个目录是它们的公共配置目录。</p>
+<ul>
+<li>k8s安装以后有哪些服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># nginx是唯一的业务pod</span><br>$ kubectl get pod -A -o wide<br><br><span class="hljs-comment"># NAMESPACE      NAME                                 READY   STATUS    </span><br><span class="hljs-comment"># default        nginx-55f8fd7cfc-vjqq5               1/1     Running</span><br><span class="hljs-comment"># kube-flannel   kube-flannel-ds-fs2wf                1/1     Running</span><br><span class="hljs-comment"># kube-system    coredns-7ff77c879f-hwjtl             1/1     Running  </span><br><span class="hljs-comment"># kube-system    coredns-7ff77c879f-pqjdk             1/1     Running </span><br><span class="hljs-comment"># kube-system    etcd-k8s-master                      1/1     Running </span><br><span class="hljs-comment"># kube-system    kube-apiserver-k8s-master            1/1     Running</span><br><span class="hljs-comment"># kube-system    kube-controller-manager-k8s-master   1/1     Running</span><br><span class="hljs-comment"># kube-system    kube-proxy-5qzvn                     1/1     Running</span><br><span class="hljs-comment"># kube-system    kube-scheduler-k8s-master            1/1     Running</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>ifconfig 输出的 eth0是什么意思</li>
+</ul>
+<p>eth0是指计算机中的第一个以太网接口，通常用于连接本地网络或连接到互联网的路由器。该接口可以通过ifconfig命令进行配置和管理。</p>
+<ul>
+<li>ifconfig 输出的 eth0之中的 inet 和 inet6是什么意思</li>
+</ul>
+<p>ifconfig 输出的 eth0 中的 inet 和 inet6 是指该接口所分配的 IPv4 和 IPv6 地址。inet 是 IPv4 地址，inet6 是 IPv6 地址。这两个地址用于标识网络中的设备，以便它们可以相互通信。inet 和 inet6 地址是网络编程中常用的概念，它们分别对应着 IPv4 和 IPv6 协议，用于实现网络数据传输。</p>
+<ul>
+<li>couldn’t get current server API group list: Get “<a target="_blank" rel="noopener" href="http://localhost:8080/api">http://localhost:8080/api</a></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;export KUBECONFIG=/etc/kubernetes/admin.conf&quot;</span> &gt;&gt; ~/.bash_profile<br>$ <span class="hljs-built_in">source</span> ~/.bash_profile<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>CRI为containerd的k8s集群如何定位异常</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ crictl ps -a<br>$ crictl logs <span class="hljs-variable">$&#123;containerdID&#125;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>k8s的版本怎么看，在安装了k8s集群的环境下</li>
+</ul>
+<p>可以通过 <code>$ kubectl version</code> 输出结果中会有两个版本号，一个是Client Version，一个是Server Version，其中Server Version即为当前集群的Kubernetes版本号。如果使用的是kubeadm搭建的集群，也可以通过 <code>$ kubeadm version</code> 输出结果中的kubernetes版本号即为当前集群的版本号。</p>
+<ul>
+<li>为什么安装了containerd的机器，执行 <code>ctr c list</code> 查看不到任何东西但是 <code>crictl ps -a</code> 却可以查看到容器列表</li>
+</ul>
+<p>可能是因为 <code>ctr c</code> 和 <code>crictl ps</code> 使用的不同的容器运行时。<code>ctr c</code> 是使用 containerd 运行时查看容器，而<code>crictl</code> 是使用 CRI (Container Runtime Interface) 运行时查看容器。因此，如果您使用的容器运行时与 containerd 不同，那么您可能无法使用 <code>ctr c</code> 查看容器。建议您使用 CRI 运行时，使用 <code>crictl ps</code> 来查看容器。</p>
+<h3 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h3><p><a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/install-kubeadm/">kubernetes.io&#x2F;zh-cn&#x2F;安装kubeadm</a><br><a target="_blank" rel="noopener" href="https://download.docker.com/linux/static/stable">官方docker离线安装</a><br><a target="_blank" rel="noopener" href="https://mirrors.aliyun.com/kubernetes/yum/repos/">kubernetes&#x2F;yum&#x2F;repos各个架构下的</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/602370492">zhihu&#x2F;k8s 1.16.0 版本的coreDNS一直处于pending状态的解决方案</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41586875/article/details/124688043">k8s部署flannel时报failed to find plugin &#x2F;opt&#x2F;cni&#x2F;bin</a><br><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/">kubernetes.io使用kubeadm安装集群</a><br><a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/docs/reference/setup-tools/kubeadm/kubeadm-init/#without-internet-connection">离线运行kubeadm初始化集群</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/kubernetes/" class="category-chain-item">kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/kubernetes/">#kubernetes</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>如何安装kubernetes</div>
+      <div>https://weiqiangxu.github.io/2023/04/18/kubernetes/如何安装kubernetes/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>April 18, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/04/18/docker/%E5%9C%A8docker%E4%B9%8B%E4%B8%AD%E9%9B%86%E6%88%90kata/" title="在docker之中集成kata">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">在docker之中集成kata</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/04/18/prometheus/snapshot%E5%A4%87%E4%BB%BD%E6%95%B0%E6%8D%AE/" title="snapshot备份数据">
+                        <span class="hidden-mobile">snapshot备份数据</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

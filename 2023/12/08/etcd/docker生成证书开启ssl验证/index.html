@@ -1,0 +1,595 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="docker生成证书开启ssl验证1. docker生成证书2. 使用生成的证书和密钥启动客户端3. 使用证书和密钥连接服务端1234567$ docker run -it -v $(pwd)&#x2F;etcd:&#x2F;root centos:centos7 sh$ yum install wget$ wget https:&#x2F;&#x2F;github.com&#x2F;cloudflare&#x2F;cfssl&#x2F;releases&#x2F;downl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xuweiqiang&#39;s Notebook">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/12/08/etcd/docker%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6%E5%BC%80%E5%90%AFssl%E9%AA%8C%E8%AF%81/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="docker生成证书开启ssl验证1. docker生成证书2. 使用生成的证书和密钥启动客户端3. 使用证书和密钥连接服务端1234567$ docker run -it -v $(pwd)&#x2F;etcd:&#x2F;root centos:centos7 sh$ yum install wget$ wget https:&#x2F;&#x2F;github.com&#x2F;cloudflare&#x2F;cfssl&#x2F;releases&#x2F;downl">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-08T12:17:57.928Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.928Z">
+<meta property="article:author" content="xuweiqiang">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-08 20:17" pubdate>
+          2023-12-08, 8:17 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none"></h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="docker生成证书开启ssl验证"><a href="#docker生成证书开启ssl验证" class="headerlink" title="docker生成证书开启ssl验证"></a>docker生成证书开启ssl验证</h1><h3 id="1-docker生成证书"><a href="#1-docker生成证书" class="headerlink" title="1. docker生成证书"></a>1. docker生成证书</h3><h3 id="2-使用生成的证书和密钥启动客户端"><a href="#2-使用生成的证书和密钥启动客户端" class="headerlink" title="2. 使用生成的证书和密钥启动客户端"></a>2. 使用生成的证书和密钥启动客户端</h3><h3 id="3-使用证书和密钥连接服务端"><a href="#3-使用证书和密钥连接服务端" class="headerlink" title="3. 使用证书和密钥连接服务端"></a>3. 使用证书和密钥连接服务端</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ docker run -it -v $(<span class="hljs-built_in">pwd</span>)/etcd:/root centos:centos7 sh<br>$ yum install wget<br>$ wget https://github.com/cloudflare/cfssl/releases/download/v1.6.4/cfssljson_1.6.4_linux_arm64<br>$ wget https://github.com/cloudflare/cfssl/releases/download/v1.6.4/cfssl_1.6.4_linux_arm64<br>$ <span class="hljs-built_in">cp</span> cfssl_1.6.4_linux_arm64 /usr/local/bin/cfssl<br>$ <span class="hljs-built_in">cp</span> cfssljson_1.6.4_linux_arm64 /usr/local/bin/cfssljson<br>$ <span class="hljs-built_in">chmod</span> +x /usr/local/bin/cfssl &amp;&amp; <span class="hljs-built_in">chmod</span> +x /usr/local/bin/cfssljson<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// config.json</span><br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;signing&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;default&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;usages&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>          <span class="hljs-string">&quot;signing&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-string">&quot;key encipherment&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-string">&quot;server auth&quot;</span><span class="hljs-punctuation">,</span><br>          <span class="hljs-string">&quot;client auth&quot;</span><br>        <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;expiry&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;87600h&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// ca-csr.json </span><br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;key&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;algo&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;rsa&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2048</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;names&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;O&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;etcd&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;OU&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;etcd&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;L&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;apisix&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;ST&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;apisix&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;C&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;china&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;CN&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;etcd&quot;</span><br><span class="hljs-punctuation">&#125;</span> <br></code></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-comment">// server.json </span><br><span class="hljs-punctuation">&#123;</span><br>  <span class="hljs-attr">&quot;key&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;algo&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;rsa&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;size&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2048</span><br>  <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;names&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-punctuation">&#123;</span><br>      <span class="hljs-attr">&quot;O&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;etcd&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;OU&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;etcd&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;L&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;apisix&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;ST&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;apisix&quot;</span><span class="hljs-punctuation">,</span><br>      <span class="hljs-attr">&quot;C&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;china&quot;</span><br>    <span class="hljs-punctuation">&#125;</span><br>  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;CN&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;etcd&quot;</span><span class="hljs-punctuation">,</span><br>  <span class="hljs-attr">&quot;hosts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>    <span class="hljs-string">&quot;192.168.4.61&quot;</span><br>  <span class="hljs-punctuation">]</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 生成 CA 证书和密钥 </span><br><span class="hljs-comment"># ca-key.pem 文件是 CA 私钥文件。CA 私钥用于签署服务器证书。CA 私钥是敏感文件，请妥善保管。</span><br><span class="hljs-comment"># ca.pem 文件是 CA 证书文件。CA 证书用于验证服务器证书。CA 证书是可公开访问的文件。</span><br><span class="hljs-comment"># server-key.pem 文件是服务器私钥文件。服务器私钥用于加密客户端数据。服务器私钥是敏感文件，请妥善保管。</span><br><span class="hljs-comment"># ca.csr 文件是 CA 证书请求文件。CA 证书请求文件包含服务器的信息，用于 CA 签署服务器证书。</span><br><span class="hljs-comment"># server.csr 文件是服务器证书请求文件。服务器证书请求文件包含服务器的信息，用于 CA 签署服务器证书。</span><br><span class="hljs-comment"># server.pem 文件是服务器证书文件。服务器证书用于验证客户端连接。服务器证书是可公开访问的文件</span><br>cfssl gencert --initca=<span class="hljs-literal">true</span> ca-csr.json | cfssljson --bare ca<br><br><br><span class="hljs-comment"># 生成服务器证书和密钥的命令</span><br><span class="hljs-comment"># 查看服务器证书和密钥 ls -al server*</span><br>cfssl gencert --ca ca.pem --ca-key ca-key.pem --config config.json server.json | cfssljson --bare server<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># vim /app/etcd/conf/conf.yml</span><br>name: etcd01<br>data-dir: /app/etcd/data<br>initial-advertise-peer-urls: https://192.168.4.61:2380<br>listen-peer-urls: https://192.168.4.61:2380<br>listen-client-urls: https://192.168.4.61:2379,http://127.0.0.1:2379<br>advertise-client-urls: https://192.168.4.61:2379<br>initial-cluster-token: apisix-etcd-cluster<br>initial-cluster: etcd01=https://192.168.4.61:238<br>initial-cluster-state: new<br><br><span class="hljs-comment"># [security]</span><br>client-transport-security:<br>  client-cert-auth: <span class="hljs-literal">true</span><br>  trusted-ca-file: /app/etcd/cfssl/ca.pem<br>  cert-file: /app/etcd/cfssl/server.pem<br>  key-file: /app/etcd/cfssl/server-key.pem<br>peer-transport-security: <br>  client-cert-auth: <span class="hljs-literal">true</span><br>  trusted-ca-file: /app/etcd/cfssl/ca.pem<br>  cert-file: /app/etcd/cfssl/server.pem<br>  key-file: /app/etcd/cfssl/server-key.pem<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker network create app-tier --driver bridge<br><br><span class="hljs-comment"># 启动服务端</span><br>docker run -d --name Etcd-server \<br>    --network app-tier \<br>    -v $(<span class="hljs-built_in">pwd</span>)/data:/bitnami/etcd/data \<br>    -v $(<span class="hljs-built_in">pwd</span>)/etcd/ca.pem:/bitnami/etcd/certs/ca.pem \<br>    -v $(<span class="hljs-built_in">pwd</span>)/etcd/server.pem:/bitnami/etcd/certs/server.pem \<br>    -v $(<span class="hljs-built_in">pwd</span>)/etcd/server-key.pem:/bitnami/etcd/certs/server-key.pem \<br>    -v $(<span class="hljs-built_in">pwd</span>)/conf.yml:/opt/bitnami/etcd/conf/etcd.conf.yml \<br>    --<span class="hljs-built_in">env</span> ALLOW_NONE_AUTHENTICATION=<span class="hljs-built_in">yes</span> \<br>    --<span class="hljs-built_in">env</span> ETCD_ADVERTISE_CLIENT_URLS=https://etcd-server:2379 \<br>    bitnami/etcd:latest<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker run -it --<span class="hljs-built_in">rm</span> \<br>    bitnami/etcd:latest etcdctl cert create-ca --out ca.pem<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><br><br><span class="hljs-comment"># 启动客户端</span><br>docker run -it --<span class="hljs-built_in">rm</span> \<br>    --network app-tier \<br>    -v $(<span class="hljs-built_in">pwd</span>)/etcd:/home/etcd \<br>    bitnami/etcd:latest etcdctl --cacert=/home/etcd/ca.pem \<br>    --cert=/home/etcd/server.pem --key=/home/etcd/server-key.pem \<br>    --endpoints https://etcd-server:2379 put /message Hello<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div></div>
+      <div>https://weiqiangxu.github.io/2023/12/08/etcd/docker生成证书开启ssl验证/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>December 8, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/08/etcd/docker%E5%90%AF%E5%8A%A8etcd2/" title="">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/08/docker/%E5%A6%82%E4%BD%95%E6%8B%89%E5%8F%96%E5%A4%9A%E6%9E%B6%E6%9E%84%E9%95%9C%E5%83%8F%E5%B9%B6%E5%AD%98%E5%82%A8%E5%88%B0%E7%A7%81%E6%9C%89%E5%BA%93/" title="">
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,629 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="使用docker创建无网络的容器，然后使用CNI插件手动分配网卡和网桥等">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何使用CNI给docker容器分配网络">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/06/29/cni/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8CNI%E7%BB%99docker%E5%AE%B9%E5%99%A8%E5%88%86%E9%85%8D%E7%BD%91%E7%BB%9C/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="使用docker创建无网络的容器，然后使用CNI插件手动分配网卡和网桥等">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://weiqiangxu.github.io/images/bg/network.png">
+<meta property="article:published_time" content="2023-06-29T10:40:12.000Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.925Z">
+<meta property="article:author" content="xuweiqiang">
+<meta property="article:tag" content="kubernetes">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://weiqiangxu.github.io/images/bg/network.png">
+  
+  
+  
+  <title>如何使用CNI给docker容器分配网络 - xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/images/bg/computer.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">如何使用CNI给docker容器分配网络</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-29 18:40" pubdate>
+          2023-06-29, 6:40 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">如何使用CNI给docker容器分配网络</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="1-安装docker和cni-plugins"><a href="#1-安装docker和cni-plugins" class="headerlink" title="1.安装docker和cni plugins"></a>1.安装docker和cni plugins</h3><ul>
+<li>docker</li>
+<li>cni plugins</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/containernetworking/cni/blob/main/README.md">本文参考手册CNI README.md</a></p>
+<h3 id="2-脚本创建网络命名空间并分配网络quickStart"><a href="#2-脚本创建网络命名空间并分配网络quickStart" class="headerlink" title="2.脚本创建网络命名空间并分配网络quickStart"></a>2.脚本创建网络命名空间并分配网络quickStart</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 宿主机上验证CNI环境已经装好</span><br><span class="hljs-comment"># 下面这个脚本执行后会创建net namespace并且分配网络</span><br><span class="hljs-comment"># 然后打印出网卡信息</span><br>$ CNI_PATH=/opt/cni/bin<br>$ <span class="hljs-built_in">cd</span> /home &amp;&amp; git <span class="hljs-built_in">clone</span> https://github.com/containernetworking/cni.git<br>$ CNI_PATH=<span class="hljs-variable">$CNI_PATH</span> /home/cni/scripts/priv-net-run.sh ifconfig<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-对docker创建好的容器分配网络并查看网络配置docker"><a href="#3-对docker创建好的容器分配网络并查看网络配置docker" class="headerlink" title="3.对docker创建好的容器分配网络并查看网络配置docker"></a>3.对docker创建好的容器分配网络并查看网络配置docker</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ docker save -o busybox.tar busybox:latest<br>$ docker load -i busybox.tar<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 下面这个脚本会给容器分配网络并且打印出容器内网卡信息</span><br>$ CNI_PATH=/opt/cni/bi<br>$ <span class="hljs-built_in">echo</span> <span class="hljs-variable">$CNI_PATH</span><br>$ <span class="hljs-built_in">cd</span> /home/cni/scripts &amp;&amp; CNI_PATH=<span class="hljs-variable">$CNI_PATH</span> ./docker-run.sh --<span class="hljs-built_in">rm</span> busybox:latest ifconfig<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-CNI在容器网络分配时候相关配置以及操作描述"><a href="#4-CNI在容器网络分配时候相关配置以及操作描述" class="headerlink" title="4.CNI在容器网络分配时候相关配置以及操作描述"></a>4.CNI在容器网络分配时候相关配置以及操作描述</h3><h5 id="1-相关博客"><a href="#1-相关博客" class="headerlink" title="1.相关博客"></a>1.相关博客</h5><p><a target="_blank" rel="noopener" href="http://www.dasblinkenlichten.com/understanding-cni-container-networking-interface/">dasblinkenlichten.com&#x2F;深入理解CNI</a></p>
+<h5 id="2-cni配置展示"><a href="#2-cni配置展示" class="headerlink" title="2.cni配置展示"></a>2.cni配置展示</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cd</span> /opt/cni/bin<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <span class="hljs-built_in">cat</span> &gt; mybridge.conf &lt;&lt;<span class="hljs-string">EOF</span><br><span class="hljs-string">&#123;</span><br><span class="hljs-string">    &quot;cniVersion&quot;: &quot;0.2.0&quot;,</span><br><span class="hljs-string">    &quot;name&quot;: &quot;mybridge&quot;,</span><br><span class="hljs-string">    &quot;type&quot;: &quot;bridge&quot;,</span><br><span class="hljs-string">    &quot;bridge&quot;: &quot;cni_bridge0&quot;,</span><br><span class="hljs-string">    &quot;isGateway&quot;: true,</span><br><span class="hljs-string">    &quot;ipMasq&quot;: true,</span><br><span class="hljs-string">    &quot;ipam&quot;: &#123;</span><br><span class="hljs-string">        &quot;type&quot;: &quot;host-local&quot;,</span><br><span class="hljs-string">        &quot;subnet&quot;: &quot;10.15.20.0/24&quot;,</span><br><span class="hljs-string">        &quot;routes&quot;: [</span><br><span class="hljs-string">            &#123; &quot;dst&quot;: &quot;0.0.0.0/0&quot; &#125;,</span><br><span class="hljs-string">            &#123; &quot;dst&quot;: &quot;1.1.1.1/32&quot;, &quot;gw&quot;:&quot;10.15.20.1&quot;&#125;</span><br><span class="hljs-string">        ]</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">&#125;</span><br><span class="hljs-string">EOF</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="2-手动创建网络命名空间然后使用CNI手动给该命名空间分配网卡"><a href="#2-手动创建网络命名空间然后使用CNI手动给该命名空间分配网卡" class="headerlink" title="2.手动创建网络命名空间然后使用CNI手动给该命名空间分配网卡"></a>2.手动创建网络命名空间然后使用CNI手动给该命名空间分配网卡</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ sudo ip netns add 1234567890<br>$ sudo CNI_COMMAND=ADD CNI_CONTAINERID=1234567890 CNI_NETNS=/var/run/netns/1234567890 CNI_IFNAME=eth12 CNI_PATH=`<span class="hljs-built_in">pwd</span>` ./bridge &lt;mybridge.conf<br><span class="hljs-comment"># 查看我们的主机 iptables 规则，我们将看到伪装和接受规则.</span><br>$ sudo iptables-save | grep mybridge<br><span class="hljs-comment"># 通常情况下，容器运行时会创建netns，这里我们手动创建</span><br>$ sudo ip netns <span class="hljs-built_in">exec</span> 1234567890 ifconfig<br><span class="hljs-comment">#　设备eth12的IP地址配置为10.15.20.2，子网掩码为255.255.255.0（/24表示子网掩码），并将该设备的网络范围设置为本地链接（scope link）</span><br>$ sudo ip netns <span class="hljs-built_in">exec</span> 1234567890 ip route<br><br><span class="hljs-comment"># 命名空间有一个名为“eth12”的接口，IP 地址为 10.15.20.2/24</span><br><span class="hljs-comment"># IP 地址对应的ipam的子网段地址</span><br>eth12: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500<br>        inet 10.15.20.2  netmask 255.255.255.0  broadcast 10.15.20.255<br>        inet6 fe80::44f2:48ff:feb6:b364  prefixlen 64  scopeid 0x20&lt;<span class="hljs-built_in">link</span>&gt;<br>        ether 46:f2:48:b6:b3:64  txqueuelen 0  (Ethernet)<br>        RX packets 67  bytes 13007 (12.7 KiB)<br>        RX errors 0  dropped 3  overruns 0  frame 0<br>        TX packets 9  bytes 682 (682.0 B)<br>        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0<br><br><br><span class="hljs-comment"># netns内部的网络路由可以看到规则有</span><br><span class="hljs-comment"># - 所有未知目标IP地址的网络流量都将通过eth12设备，并通过网关10.15.20.1转发到其他网络</span><br><span class="hljs-comment"># - 将目标IP地址1.1.1.1的网络流量通过eth12设备，并通过网关10.15.20.1转发到其他网络</span><br><span class="hljs-comment"># - 本地网络10.15.20.0/24的所有流量都通过eth12设备发送，并且源IP地址为10.15.20.2</span><br><span class="hljs-comment"># &quot;proto kernel&quot;表示该路由是由内核自动生成的。 &quot;scope link&quot; 表示该路由只适用于本地链路</span><br>$ sudo ip netns <span class="hljs-built_in">exec</span> 1234567890 ip route<br><br>default via 10.15.20.1 dev eth12                                 <span class="hljs-comment">#  &quot;dev&quot; 是指指定该路由器的出口网络接口，即数据包是从哪个网络接口发送出去的, 默认路由通过 eth12 网络接口，经过 10.15.20.1 这个下一跳地址进行转发</span><br>1.1.1.1 via 10.15.20.1 dev eth12                                 <span class="hljs-comment">#  &quot;via&quot; 是指默认路由的下一跳地址，即数据包需要经过哪个路由器进行转发</span><br>10.15.20.0/24 dev eth12 proto kernel scope <span class="hljs-built_in">link</span> src 10.15.20.2   <span class="hljs-comment">#  &quot;src&quot; 是指源IP地址，即指定该路由器发送数据包的源IP地址</span><br><br><span class="hljs-comment"># 查看网桥配置可以看到netns内部网卡eth12的veth pair对端网卡是vethb4336cfa</span><br>$ brctl show<br><br>bridge name     bridge <span class="hljs-built_in">id</span>               STP enabled     interfaces<br>cni_bridge0     8000.127bceaee96d       no              vethb4336cfa<br></code></pre></td></tr></table></figure>
+
+<h5 id="3-配置解析"><a href="#3-配置解析" class="headerlink" title="3.配置解析"></a>3.配置解析</h5><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>    <span class="hljs-attr">&quot;cniVersion&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;定义适用的 CNI 规范的版本&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;网络名称&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;您希望使用的插件的名称。在这种情况下，插件可执行文件的实际名称&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;bridge&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;创建名为cni_bridge0的网桥接口&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;isGateway&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;如果为真，则为网桥分配一个IP地址，以便连接到它的容器可以将其用作网关&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;ipMasq&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;为此网络配置出站伪装（源 NAT）&quot;</span><span class="hljs-punctuation">,</span><br>    <span class="hljs-attr">&quot;ipam&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;IPAM 插件可执行文件的名称&quot;</span><span class="hljs-punctuation">,</span><br>        <span class="hljs-attr">&quot;subnet&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;要分配的子网（这实际上是 IPAM 插件的一部分），这个其实决定了容器内的网址&quot;</span><span class="hljs-punctuation">,</span> <br>        <span class="hljs-attr">&quot;routes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><br>            <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;dst&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;您希望访问的子网&quot;</span> <span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>            <span class="hljs-punctuation">&#123;</span> <span class="hljs-attr">&quot;dst&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;您希望访问的子网&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;gw&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;到达dst的下一跳IP地址。如果未指定，则假定为子网的默认网关&quot;</span><span class="hljs-punctuation">&#125;</span><br>        <span class="hljs-punctuation">]</span><br>    <span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="4-命名描述"><a href="#4-命名描述" class="headerlink" title="4.命名描述"></a>4.命名描述</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">CNI_COMMAND=ADD – 我们告诉 CNI 我们想要添加一个连接<br>CNI_CONTAINER=1234567890 – 我们告诉 CNI 我们想要使用的网络命名空间称为“1234567890”（更多内容见下文）<br>CNI_NETNS=/var/run/netns/1234567890 – 相关命名空间的路径<br>CNI_IFNAME=eth12 – 我们希望在连接的容器端使用的接口名称<br>CNI_PATH=`<span class="hljs-built_in">pwd</span>`  – 我们总是需要告诉 CNI 插件可执行文件所在的位置。在这种情况下，<br>因为我们已经在“cni”目录中，所以我们只有变量引用 <span class="hljs-built_in">pwd</span>（当前工作目录）。<br>您需要命令 <span class="hljs-built_in">pwd</span> 周围的刻度线才能正确评估。此处的格式似乎正在删除它们，但它们在上面的命令中正确<br>我们使用 STDIN 将网络配置文件提供给插件<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/kubernetes/" class="category-chain-item">kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/kubernetes/">#kubernetes</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>如何使用CNI给docker容器分配网络</div>
+      <div>https://weiqiangxu.github.io/2023/06/29/cni/如何使用CNI给docker容器分配网络/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>June 29, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/05/cni/kube-proxy%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0/" title="kube-proxy设计与实现">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">kube-proxy设计与实现</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/29/cni/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E5%8F%8C%E7%BD%91%E5%8D%A1%E5%AE%9E%E7%8E%B0%E7%BD%91%E7%BB%9C%E9%9A%94%E7%A6%BB/" title="创建双网卡实现网络隔离">
+                        <span class="hidden-mobile">创建双网卡实现网络隔离</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

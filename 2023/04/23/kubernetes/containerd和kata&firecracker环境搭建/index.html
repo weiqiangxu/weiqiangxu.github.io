@@ -1,0 +1,704 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="安装containerd和kata，测试kata-qemu和kata-firecracker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="containerd和kata&amp;firecracker环境搭建">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/04/23/kubernetes/containerd%E5%92%8Ckata&firecracker%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="安装containerd和kata，测试kata-qemu和kata-firecracker">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://weiqiangxu.github.io/images/bg/k8s.webp">
+<meta property="article:published_time" content="2023-04-23T10:40:12.000Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.938Z">
+<meta property="article:author" content="xuweiqiang">
+<meta property="article:tag" content="kubernetes">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://weiqiangxu.github.io/images/bg/k8s.webp">
+  
+  
+  
+  <title>containerd和kata&amp;firecracker环境搭建 - xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/images/bg/5.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">containerd和kata&firecracker环境搭建</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-04-23 18:40" pubdate>
+          2023-04-23, 6:40 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">containerd和kata&amp;firecracker环境搭建</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="一、环境"><a href="#一、环境" class="headerlink" title="一、环境"></a>一、环境</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@VM-8-4-centos ~]<span class="hljs-comment"># uname -a</span><br>Linux x86_64 GNU/Linux<br><br><span class="hljs-comment"># 需要支持虚拟化：有输出表示支持</span><br>$ egrep <span class="hljs-string">&#x27;(vmx|svm)&#x27;</span> /proc/cpuinfo |<span class="hljs-built_in">wc</span> -l<br><br><span class="hljs-comment"># 需要安装kvm</span><br>$ lsmod | grep kvm<br><span class="hljs-comment"># kvm_intel  376832  11</span><br><span class="hljs-comment"># kvm  1015808  1 kvm_intel</span><br><br><span class="hljs-comment"># dev设备</span><br>$ ll /dev/kvm<br></code></pre></td></tr></table></figure>
+
+<h3 id="二、安装包"><a href="#二、安装包" class="headerlink" title="二、安装包"></a>二、安装包</h3><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs txt">kata-static-3.0.2-x86_64.tar.xz<br></code></pre></td></tr></table></figure>
+
+<h3 id="三、文档地址"><a href="#三、文档地址" class="headerlink" title="三、文档地址"></a>三、文档地址</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/kata-containers/kata-containers/blob/3.0.2/docs/how-to/containerd-kata.md">kata-containers&#x2F;3.0.2-如何与containerd集成</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/containerd/containerd/blob/v1.7.0/docs/snapshotters/devmapper.md">containerd-v1.7.0安装snapshotters.devmapper</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kata-containers/kata-containers/releases/tag/3.0.2">kata-containerd&#x2F;v3.0.2</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kata-containers/kata-containers/blob/main/docs/install/container-manager/containerd/containerd-install.md">kata-container和containerd安装</a></li>
+</ul>
+<h3 id="四、安装kata-containers"><a href="#四、安装kata-containers" class="headerlink" title="四、安装kata-containers"></a>四、安装kata-containers</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 下载安装包</span><br>$ /home/kata-static-3.0.2-x86_64.tar.xz<br><br><span class="hljs-comment"># 解压至根目录</span><br>$ tar -xvf  kata-static-3.0.2-x86_64.tar.xz -C /<br><br><span class="hljs-comment"># 验证可用</span><br>$ kata-runtime check --no-network-checks<br>$ kata-runtime --show-default-config-paths<br>$ kata-runtime kata-env<br></code></pre></td></tr></table></figure>
+
+<h3 id="五、配置containerd"><a href="#五、配置containerd" class="headerlink" title="五、配置containerd"></a>五、配置containerd</h3><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs yml">[<span class="hljs-string">plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes.kata</span>]<br>  <span class="hljs-string">runtime_type</span> <span class="hljs-string">=</span> <span class="hljs-string">&quot;io.containerd.kata.v2&quot;</span><br>  <span class="hljs-string">privileged_without_host_devices</span> <span class="hljs-string">=</span> <span class="hljs-literal">true</span><br>  <span class="hljs-string">pod_annotations</span> <span class="hljs-string">=</span> [<span class="hljs-string">&quot;io.katacontainers.*&quot;</span>]<br>  <span class="hljs-string">container_annotations</span> <span class="hljs-string">=</span> [<span class="hljs-string">&quot;io.katacontainers.*&quot;</span>]<br>  [<span class="hljs-string">plugins.&quot;io.containerd.grpc.v1.cri&quot;.containerd.runtimes.kata.options</span>]<br>    <span class="hljs-string">ConfigPath</span> <span class="hljs-string">=</span> <span class="hljs-string">&quot;/opt/kata/share/defaults/kata-containers/configuration.toml&quot;</span><br></code></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://github.com/kata-containers/kata-containers/blob/main/docs/how-to/containerd-kata.md#kata-containers-as-a-runtimeclass">containerd.plugins.cri.runtimes.kata配置说明</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 重启containerd服务</span><br>$ systemctl daemon-reload<br>$ systemctl start containerd <br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ containerd config dump | grep kata<br></code></pre></td></tr></table></figure>
+
+<h3 id="六、运行容器"><a href="#六、运行容器" class="headerlink" title="六、运行容器"></a>六、运行容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ sudo ctr image pull docker.io/library/busybox:latest<br>$ sudo ctr run --runtime <span class="hljs-string">&quot;io.containerd.kata.v2&quot;</span> --<span class="hljs-built_in">rm</span> -t docker.io/library/busybox:latest test-kata <span class="hljs-built_in">uname</span> -r<br></code></pre></td></tr></table></figure>
+
+<h3 id="七、使用firecracker创建容器"><a href="#七、使用firecracker创建容器" class="headerlink" title="七、使用firecracker创建容器"></a>七、使用firecracker创建容器</h3><p><a target="_blank" rel="noopener" href="https://github.com/kata-containers/kata-containers/blob/3.0.2/docs/how-to/how-to-use-kata-containers-with-firecracker.md">how-to-use-kata-containers-with-firecracker</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># devmapper非常重要</span><br><span class="hljs-comment"># devmapper非常重要</span><br>$ sudo ctr plugins <span class="hljs-built_in">ls</span> | grep devmapper<br><br><span class="hljs-comment"># 创建符号连接否则containerd找不到kata</span><br>$ sudo <span class="hljs-built_in">ln</span> -s /home/opt/kata/bin/containerd-shim-kata-v2 /usr/bin/containerd-shim-kata-v2<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建kata-fc</span><br>$ <span class="hljs-built_in">touch</span> /usr/local/bin/containerd-shim-kata-fc-v2<br><br>$ <span class="hljs-built_in">cat</span> &lt;&lt;<span class="hljs-string">EOF &gt; /usr/local/bin/containerd-shim-kata-fc-v2</span><br><span class="hljs-string">#!/bin/bash</span><br><span class="hljs-string">KATA_CONF_FILE=/opt/kata/share/defaults/kata-containers/configuration-fc.toml /opt/kata/bin/containerd-shim-kata-v2 $@</span><br><span class="hljs-string">EOF</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># containerd.plugin.devmapper需要安装</span><br>$ ctr images pull --snapshotter devmapper docker.io/library/ubuntu:latest<br>$ ctr run --snapshotter devmapper --runtime io.containerd.run.kata-fc.v2 -t --<span class="hljs-built_in">rm</span> docker.io/library/ubuntu:latest test-kata-fc<br>$ ctr run --snapshotter devmapper --runtime io.containerd.run.kata.v2 -t --<span class="hljs-built_in">rm</span> docker.io/library/ubuntu:latest test-kata-qemu<br>$ ctr run --snapshotter devmapper --runtime io.containerd.run.runc.v2 -t --<span class="hljs-built_in">rm</span> docker.io/library/ubuntu:latest test-kata-runc<br><br><span class="hljs-comment"># [root ~]# ctr c ls</span><br><span class="hljs-comment"># CONTAINER         IMAGE                              RUNTIME                         </span><br><span class="hljs-comment"># test-kata-fc      docker.io/library/ubuntu:latest    io.containerd.run.kata-fc.v2    </span><br><span class="hljs-comment"># test-kata-qemu    docker.io/library/ubuntu:latest    io.containerd.run.kata.v2  </span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 宿主机上查看进程</span><br>$ ps -ef | grep test-kata-fc<br>$ ps -ef | grep test-kata-qemu<br></code></pre></td></tr></table></figure>
+
+<h3 id="八、比较qemu和firecracker的性能"><a href="#八、比较qemu和firecracker的性能" class="headerlink" title="八、比较qemu和firecracker的性能"></a>八、比较qemu和firecracker的性能</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ ps -ef<br></code></pre></td></tr></table></figure>
+
+<h3 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h3><ul>
+<li>kata-rc怎么和containerd集成</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs txt">kata runtime独立仓库(v1.5) 之前出的一个兼容fc的脚本<br>新版本3.0需要了<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>kata-runtime和kata-containerd什么关系</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs txt">kata-container 包含 kata-runtime<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>containerd怎么集成kata-rc</p>
+</li>
+<li><p>containerd怎么安装扩展plugins.devmapper</p>
+</li>
+<li><p>containerd刚刚安装的时候没有配置文件怎么生成</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ containerd config default &gt; /etc/containerd/config.toml<br></code></pre></td></tr></table></figure>
+<ul>
+<li><p>kata-runtime刚刚生成没有配置文件怎么处理</p>
+</li>
+<li><p>containerd 怎么添加扩展</p>
+</li>
+<li><p>containerd的devmapper是什么来的</p>
+</li>
+<li><p>CNI怎么安装，etc&#x2F;cni&#x2F;net.d&#x2F;这个文件夹下面的配置是怎么填写的</p>
+</li>
+<li><p>rootfs not found</p>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/kata-containers/kata-containers/issues/6784">https://github.com/kata-containers/kata-containers/issues/6784</a></p>
+<ul>
+<li>kata container amd64下载</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/kata-containers/kata-containers/issues/6776">https://github.com/kata-containers/kata-containers/issues/6776</a></p>
+<ul>
+<li>containerd.plugin.snapshotter的devmapper是什么</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs txt">containerd.plugin.snapshotter的devmapper是一个存储驱动程序，它使用devmapper技术在宿主机上创建镜像和容器快照。<br>它允许容器在宿主机上使用基于写时复制（Copy-on-Write）的快照技术，以减少磁盘空间和I/O使用。<br>devmapper是Docker默认使用的存储驱动程序之一，也可以在containerd中使用。<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>snapshotter是什么</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs txt">在Containerd中，snapshotter是一个用于管理和创建容器根文件系统（rootfs）以及容器快照的组件。<br>当容器创建时，snapshotter会根据指定的镜像，创建一个只读的rootfs，并在其上添加一个可写层，以允许容器进行修改。<br>snapshotter还负责为容器创建快照，这可以提供可恢复性和备份能力。<br>Containerd支持多个snapshotter驱动程序，如devmapper、overlayfs和btrfs等，以满足不同的需求和环境。<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>ctr对容器的操作</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 停止所有容器</span><br>$ ctr tasks <span class="hljs-built_in">kill</span> -a -s 9 container_id<br><br><span class="hljs-comment"># 删除容器</span><br>$ ctr c <span class="hljs-built_in">rm</span> $(ctr c list -q)<br></code></pre></td></tr></table></figure>
+<ul>
+<li>yum</li>
+</ul>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">cat <span class="hljs-regexp">/etc/</span>os-release<br>cd <span class="hljs-regexp">/etc/yum</span>.repos.d/<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Fedora RedHat Ubuntu CentOS Debian之间的区别和联系是什么<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs txt">Fedora、RedHat、Ubuntu、CentOS和Debian都是常见的Linux发行版，它们之间有以下区别和联系：<br><br>1. Fedora是由Red Hat公司赞助的社区开发的Linux发行版，Red Hat则是一家提供商业Linux产品的公司。CentOS是基于Red Hat Enterprise Linux (RHEL)源代码的开源发行版，而Ubuntu和Debian是完全独立的发行版。<br><br>2. Fedora、RedHat和CentOS都使用RPM软件包管理系统，而Ubuntu和Debian使用DEB软件包管理系统。<br><br>3. Fedora和Ubuntu都是面向桌面和开发者的发行版，而RedHat和CentOS主要面向企业服务器市场，而Debian则更多用于开发者和服务器上。<br><br>4. Fedora和Ubuntu都有免费版和商业版，而RedHat和CentOS则主要提供商业版。<br><br>5. Fedora和Ubuntu更新频繁，每6个月发布一次新版本，而RedHat和CentOS更新周期较长，通常每2-3年发布一次新版本，Debian则更新周期更为稳定。<br><br>但它们都是基于Linux内核的操作系统。<br></code></pre></td></tr></table></figure></li>
+<li>Fedora RedHat Ubuntu CentOS Debian 关系图</li>
+<li>linux分区操作</li>
+<li>ubuntu 安装yum 可以吗</li>
+<li>Linux两大系列debian和redhat</li>
+<li>yum repolist all干嘛的</li>
+</ul>
+<h3 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h3><p><a target="_blank" rel="noopener" href="https://github.com/kata-containers/documentation/wiki/Initial-release-of-Kata-Containers-with-Firecracker-support">kata-firecracker和docker的集成</a><br><a target="_blank" rel="noopener" href="https://github.com/kata-containers/kata-containers/blob/3.0.2/docs/how-to/run-kata-with-crictl.md">kata-containers&#x2F;3.0.2&#x2F;crictl创建容器</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_70885101/article/details/127271416">ubuntu安装使用yum-更新yumde软件源地址即可</a><br><a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/">清华大学开源软件镜像站</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/kubernetes/" class="category-chain-item">kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/kubernetes/">#kubernetes</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>containerd和kata&amp;firecracker环境搭建</div>
+      <div>https://weiqiangxu.github.io/2023/04/23/kubernetes/containerd和kata&amp;firecracker环境搭建/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>April 23, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/04/23/kubernetes/kubernetes%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" title="kubernetes架构设计">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">kubernetes架构设计</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/04/23/kubernetes/%E5%88%9D%E8%AF%86CRD/" title="初识CRD">
+                        <span class="hidden-mobile">初识CRD</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

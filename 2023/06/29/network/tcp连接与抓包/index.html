@@ -1,0 +1,675 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="学习抓包详解tcp连接过程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tcp连接与抓包">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/06/29/network/tcp%E8%BF%9E%E6%8E%A5%E4%B8%8E%E6%8A%93%E5%8C%85/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="学习抓包详解tcp连接过程">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://weiqiangxu.github.io/images/bg/network.png">
+<meta property="article:published_time" content="2023-06-29T10:40:12.000Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.948Z">
+<meta property="article:author" content="xuweiqiang">
+<meta property="article:tag" content="network">
+<meta property="article:tag" content="tcp">
+<meta property="article:tag" content="tcpdump">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://weiqiangxu.github.io/images/bg/network.png">
+  
+  
+  
+  <title>tcp连接与抓包 - xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/images/bg/computer.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">tcp连接与抓包</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-29 18:40" pubdate>
+          2023-06-29, 6:40 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">tcp连接与抓包</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="tcp连接与抓包"><a href="#tcp连接与抓包" class="headerlink" title="tcp连接与抓包"></a>tcp连接与抓包</h1><ol>
+<li>使用golang做tcp网络编程创建client &amp;&amp; server</li>
+<li>使用tcpdump监听客户端和服务端的连接情况</li>
+</ol>
+<h3 id="tcpdump"><a href="#tcpdump" class="headerlink" title="tcpdump"></a>tcpdump</h3><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># client</span><br><span class="hljs-attribute">sudo</span> tcpdump -i lo0 host localhost and dst port <span class="hljs-number">9292</span> -n<br><span class="hljs-comment"># server</span><br><span class="hljs-attribute">sudo</span> tcpdump -i lo0 host localhost and src port <span class="hljs-number">9292</span> -n<br></code></pre></td></tr></table></figure>
+
+<h3 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h3><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs dns"># src <span class="hljs-number">9292</span><br><br><span class="hljs-number">22</span>:<span class="hljs-number">38</span>:<span class="hljs-number">22.028257</span> IP <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">9292</span> &gt; <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">50139</span>: Flags [S.], seq <span class="hljs-number">2936404470</span>, ack <span class="hljs-number">2399477565</span>, win <span class="hljs-number">65535</span>, options [mss <span class="hljs-number">16344</span>,nop,wscale <span class="hljs-number">6</span>,nop,nop,TS val <span class="hljs-number">2141525572</span> ecr <span class="hljs-number">2939320578</span>,sackOK,eol], length <span class="hljs-number">0</span><br><span class="hljs-number">22</span>:<span class="hljs-number">38</span>:<span class="hljs-number">22.028287</span> IP <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">9292</span> &gt; <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">50139</span>: Flags [.], ack <span class="hljs-number">1</span>, win <span class="hljs-number">6379</span>, options [nop,nop,TS val <span class="hljs-number">2141525572</span> ecr <span class="hljs-number">2939320578</span>], length <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs dns"># dst <span class="hljs-number">9292</span><br><br><span class="hljs-number">22</span>:<span class="hljs-number">38:22.028149</span> IP <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">50139</span> &gt; <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">9292</span>: Flags [S], seq <span class="hljs-number">2399477564</span>, win <span class="hljs-number">65535</span>, options [mss <span class="hljs-number">16344</span>,nop,wscale <span class="hljs-number">6</span>,nop,nop,TS val <span class="hljs-number">2939320578</span> ecr <span class="hljs-number">0</span>,sackOK,eol], length <span class="hljs-number">0</span><br><span class="hljs-number">22</span>:<span class="hljs-number">38</span>:<span class="hljs-number">22.028278</span> IP <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">50139</span> &gt; <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">9292</span>: Flags [.], ack <span class="hljs-number">2936404471</span>, win <span class="hljs-number">6379</span>, options [nop,nop,TS val <span class="hljs-number">2939320578</span> ecr <span class="hljs-number">2141525572</span>], length <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs css"># 简化一下<br><br>client   Flags <span class="hljs-selector-attr">[S]</span>,seq <span class="hljs-number">2399477564</span>, win <span class="hljs-number">65535</span>                     <span class="hljs-selector-attr">[SYN报文]</span> <span class="hljs-selector-attr">[发完之后clent状态是SYN-SENT]</span><br>server   Flags <span class="hljs-selector-attr">[S.]</span>,seq <span class="hljs-number">2936404470</span>, ack <span class="hljs-number">2399477565</span>, win <span class="hljs-number">65535</span>    <span class="hljs-selector-attr">[报文发送后server状态是SYN-RCVD]</span><br>client   Flags <span class="hljs-selector-attr">[.]</span>,ack <span class="hljs-number">2936404471</span>, win <span class="hljs-number">6379</span>                      <span class="hljs-selector-attr">[报文发送后client状态是ESTABLISHED]</span>  <span class="hljs-selector-attr">[注意这一次的报文可以携带客户端到服务端的数据了]</span><br>                                                                 <span class="hljs-selector-attr">[服务端收到客户端报文后状态是ESTABLISHED]</span><br>               <br><br># 注意seq值和ack值总是相差<span class="hljs-number">1</span><br># 注意握手成功后双方的状态都是ESTABLISHED<br></code></pre></td></tr></table></figure>
+
+
+<h3 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h3><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs dns"># dst <span class="hljs-number">9292</span><br><br><span class="hljs-number">22</span>:<span class="hljs-number">44</span>:<span class="hljs-number">13.099483</span> IP <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">50943</span> &gt; <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">9292</span>: Flags [F.], seq <span class="hljs-number">0</span>, ack <span class="hljs-number">1</span>, win <span class="hljs-number">6379</span>, options [nop,nop,TS val <span class="hljs-number">1048610910</span> ecr <span class="hljs-number">2373676954</span>], length <span class="hljs-number">0</span><br><span class="hljs-number">22</span>:<span class="hljs-number">44</span>:<span class="hljs-number">13.099714</span> IP <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">50943</span> &gt; <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">9292</span>: Flags [.], ack <span class="hljs-number">2</span>, win <span class="hljs-number">6379</span>, options [nop,nop,TS val <span class="hljs-number">1048610910</span> ecr <span class="hljs-number">2373686619</span>], length <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs dns"># src <span class="hljs-number">9292</span><br><br><span class="hljs-number">22</span>:<span class="hljs-number">44</span>:<span class="hljs-number">13.099535</span> IP <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">9292</span> &gt; <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">50943</span>: Flags [.], ack <span class="hljs-number">2</span>, win <span class="hljs-number">6379</span>, options [nop,nop,TS val <span class="hljs-number">2373686619</span> ecr <span class="hljs-number">1048610910</span>], length <span class="hljs-number">0</span><br><span class="hljs-number">22</span>:<span class="hljs-number">44</span>:<span class="hljs-number">13.099681</span> IP <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">9292</span> &gt; <span class="hljs-number">127.0.0.1</span>.<span class="hljs-number">50943</span>: Flags [F.], seq <span class="hljs-number">1</span>, ack <span class="hljs-number">2</span>, win <span class="hljs-number">6379</span>, options [nop,nop,TS val <span class="hljs-number">2373686619</span> ecr <span class="hljs-number">1048610910</span>], length <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs axapta"><span class="hljs-meta"># 四次挥手</span><br><br><span class="hljs-keyword">client</span>   Flags [F.], seq <span class="hljs-number">0</span>, ack <span class="hljs-number">1</span>, win <span class="hljs-number">6379</span><br><span class="hljs-keyword">server</span>   Flags [.], ack <span class="hljs-number">2</span>, win <span class="hljs-number">6379</span><br><span class="hljs-keyword">server</span>   Flags [F.], seq <span class="hljs-number">1</span>, ack <span class="hljs-number">2</span>, win <span class="hljs-number">6379</span><br><span class="hljs-keyword">client</span>   Flags [.], ack <span class="hljs-number">2</span>, win <span class="hljs-number">6379</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="来学学TCP调优"><a href="#来学学TCP调优" class="headerlink" title="来学学TCP调优"></a>来学学TCP调优</h3><p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/fjnChU3MKNc_x-Wk7evLhg">换人！他连TCP这几个参数都不懂</a></p>
+<h3 id="调优大纲"><a href="#调优大纲" class="headerlink" title="调优大纲"></a>调优大纲</h3><ol>
+<li>握手调优</li>
+<li>挥手调优</li>
+<li>传输调优</li>
+</ol>
+<h3 id="握手调优"><a href="#握手调优" class="headerlink" title="握手调优"></a>握手调优</h3><ol>
+<li>client超时重传机制</li>
+<li>server response &amp;&amp; Linux内核半连接队列溢出 &amp;&amp; 服务端重发SYN+ACK 报文 &amp;&amp; 服务端ESTABLISHED后变accept队列（全连接队列） &amp;&amp; 全连接队列溢出</li>
+<li>client response</li>
+</ol>
+<h3 id="报文"><a href="#报文" class="headerlink" title="报文"></a>报文</h3><blockquote>
+<p>SYN 的全称就叫 Synchronize Sequence Numbers(同步序列号)(TCP头部格式之中有保留的6位)</p>
+</blockquote>
+<ol>
+<li>SYN</li>
+<li>RST</li>
+<li>FIN</li>
+<li>ACK</li>
+<li>URG</li>
+<li>PSH</li>
+</ol>
+<h3 id="状态流转"><a href="#状态流转" class="headerlink" title="状态流转"></a>状态流转</h3><ol>
+<li>SYN_SENT</li>
+<li>SYN_RCV</li>
+<li>ESTABLISHED</li>
+</ol>
+<h3 id="nginx调整半连接队列大小backlog"><a href="#nginx调整半连接队列大小backlog" class="headerlink" title="nginx调整半连接队列大小backlog"></a>nginx调整半连接队列大小backlog</h3><h3 id="syncookies"><a href="#syncookies" class="headerlink" title="syncookies"></a>syncookies</h3><blockquote>
+<p>开启 syncookies 功能就可以在不使用 SYN 半连接队列的情况下成功建立连接。</p>
+</blockquote>
+<h3 id="SYN攻击"><a href="#SYN攻击" class="headerlink" title="SYN攻击"></a>SYN攻击</h3><h3 id="服务器收到-ACK-后连接建立成功，accept队列（全连接队列）溢出，TCP连接被丢弃"><a href="#服务器收到-ACK-后连接建立成功，accept队列（全连接队列）溢出，TCP连接被丢弃" class="headerlink" title="服务器收到 ACK 后连接建立成功，accept队列（全连接队列）溢出，TCP连接被丢弃"></a>服务器收到 ACK 后连接建立成功，accept队列（全连接队列）溢出，TCP连接被丢弃</h3><h3 id="服务端已经收到了ACK，但是因为accept队列（全连接队列）溢出导致TCP连接被丢弃，告知客户端的话，客户端异常会收到-connection-reset-by-peer"><a href="#服务端已经收到了ACK，但是因为accept队列（全连接队列）溢出导致TCP连接被丢弃，告知客户端的话，客户端异常会收到-connection-reset-by-peer" class="headerlink" title="服务端已经收到了ACK，但是因为accept队列（全连接队列）溢出导致TCP连接被丢弃，告知客户端的话，客户端异常会收到 connection reset by peer"></a>服务端已经收到了ACK，但是因为accept队列（全连接队列）溢出导致TCP连接被丢弃，告知客户端的话，客户端异常会收到 connection reset by peer</h3><blockquote>
+<p>服务端全连接队列溢出 connection reset by peer<br>正常来说服务端全连接溢出，server直接丢弃client.ack就好了，client过一会儿会自动重新发送ack<br>或者加大accpet队列长度</p>
+</blockquote>
+<h3 id="如何查看server的accpet队列长度"><a href="#如何查看server的accpet队列长度" class="headerlink" title="如何查看server的accpet队列长度"></a>如何查看server的accpet队列长度</h3><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">ss -ltn</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="查看由于-accept-连接队列已满，而被丢弃的连接"><a href="#查看由于-accept-连接队列已满，而被丢弃的连接" class="headerlink" title="查看由于 accept 连接队列已满，而被丢弃的连接"></a>查看由于 accept 连接队列已满，而被丢弃的连接</h3><h3 id="HTTP-请求必须在一个-RTT（从客户端到服务器一个往返的时间）后才能发送-是什么意思"><a href="#HTTP-请求必须在一个-RTT（从客户端到服务器一个往返的时间）后才能发送-是什么意思" class="headerlink" title="HTTP 请求必须在一个 RTT（从客户端到服务器一个往返的时间）后才能发送 是什么意思"></a>HTTP 请求必须在一个 RTT（从客户端到服务器一个往返的时间）后才能发送 是什么意思</h3><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs axapta">意味着 <span class="hljs-keyword">client</span> SYN 之后 <span class="hljs-keyword">server</span> response SYN+ACK 之后<br><br><span class="hljs-keyword">client</span>此时就可以发送数据了<br><br>注意此时服务端是半连接队列状态<span class="hljs-keyword">client</span>就可以发送数据了<br><br>RTT是一个往返<br></code></pre></td></tr></table></figure>
+
+<hr>
+
+<h3 id="四次挥手的性能提升"><a href="#四次挥手的性能提升" class="headerlink" title="四次挥手的性能提升"></a>四次挥手的性能提升</h3><h3 id="仅仅涉及两种报文"><a href="#仅仅涉及两种报文" class="headerlink" title="仅仅涉及两种报文"></a>仅仅涉及两种报文</h3><ol>
+<li>FIN</li>
+<li>ACK</li>
+</ol>
+<h3 id="状态"><a href="#状态" class="headerlink" title="状态"></a>状态</h3><ol>
+<li>ESTABLISHED</li>
+<li>FIN_WAIT1</li>
+<li>CLOSE_WAIT</li>
+<li>FIN_WAIT2</li>
+<li>LAST_ACK</li>
+<li>TIME_WAIT</li>
+</ol>
+<h3 id="主动关闭连接的，才有-TIME-WAIT-状态"><a href="#主动关闭连接的，才有-TIME-WAIT-状态" class="headerlink" title="主动关闭连接的，才有 TIME_WAIT 状态"></a>主动关闭连接的，才有 TIME_WAIT 状态</h3><h3 id="优化思路一：主动方的优化"><a href="#优化思路一：主动方的优化" class="headerlink" title="优化思路一：主动方的优化"></a>优化思路一：主动方的优化</h3><blockquote>
+<p>关闭的方式： 1.RST 报文关闭  2.FIN 报文关闭</p>
+</blockquote>
+<h3 id="进程异常退出，内核发送RST报文"><a href="#进程异常退出，内核发送RST报文" class="headerlink" title="进程异常退出，内核发送RST报文"></a>进程异常退出，内核发送RST报文</h3><h3 id="滑动窗口是如何影响传输速度的"><a href="#滑动窗口是如何影响传输速度的" class="headerlink" title="滑动窗口是如何影响传输速度的"></a>滑动窗口是如何影响传输速度的</h3><ol>
+<li>包的往返时间越长，网络的吞吐量就会越低；所以单程携带更多，就是批量发送报文批量处理报 文字</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/jomA0WT6zul1zrGzuBqOkA">收到RST，就一定会断开TCP连接吗？</a></p>
+<blockquote>
+<p>本端收到远端发来的RST后，内核已经认为此链接已经关闭</p>
+</blockquote>
+<ol>
+<li>应用层尝试去执行 读数据操作，比如recv，应用层就会收到 Connection reset by peer 的报错，意思是远端已经关闭连接</li>
+<li>应用层尝试去执行写数据操作，比如send，那么应用层就会收到 Broken pipe 的报错，意思是发送通道已经坏了</li>
+</ol>
+<h3 id="http会主动断开连接吗"><a href="#http会主动断开连接吗" class="headerlink" title="http会主动断开连接吗"></a>http会主动断开连接吗</h3><h3 id="如果线上网站出现了broken-pipe怎么查BUG呢"><a href="#如果线上网站出现了broken-pipe怎么查BUG呢" class="headerlink" title="如果线上网站出现了broken pipe怎么查BUG呢"></a>如果线上网站出现了broken pipe怎么查BUG呢</h3>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/network/" class="category-chain-item">network</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/network/">#network</a>
+      
+        <a href="/tags/tcp/">#tcp</a>
+      
+        <a href="/tags/tcpdump/">#tcpdump</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>tcp连接与抓包</div>
+      <div>https://weiqiangxu.github.io/2023/06/29/network/tcp连接与抓包/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>June 29, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

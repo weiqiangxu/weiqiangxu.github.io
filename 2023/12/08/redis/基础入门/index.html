@@ -1,0 +1,603 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Redis入门指南1234567891011121314151617181920212223242526272829303132333435369 种数据类型BitMap 二值状态统计的场景Stream 消息队列HyperLogLog 海量数据基数统计的场景GEO 地理位置信息HSET key field valueKEYSLPUSH LPOPRPUSH RPOPLLEN KEYSADD KEY">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xuweiqiang&#39;s Notebook">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/12/08/redis/%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="Redis入门指南1234567891011121314151617181920212223242526272829303132333435369 种数据类型BitMap 二值状态统计的场景Stream 消息队列HyperLogLog 海量数据基数统计的场景GEO 地理位置信息HSET key field valueKEYSLPUSH LPOPRPUSH RPOPLLEN KEYSADD KEY">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-08T12:17:57.952Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.952Z">
+<meta property="article:author" content="xuweiqiang">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-08 20:17" pubdate>
+          2023-12-08, 8:17 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none"></h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="Redis入门指南"><a href="#Redis入门指南" class="headerlink" title="Redis入门指南"></a>Redis入门指南</h3><figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs gauss"><span class="hljs-number">9</span> 种数据类型<br><br>BitMap 二值状态统计的场景<br>Stream 消息队列<br>HyperLogLog 海量数据基数统计的场景<br>GEO 地理位置信息<br><br><br>HSET <span class="hljs-built_in">key</span> field value<br>KEYS<br>LPUSH LPOP<br>RPUSH RPOP<br>LLEN <span class="hljs-built_in">KEY</span><br>SADD <span class="hljs-built_in">KEY</span> member<br>SREM <span class="hljs-built_in">KEY</span> member<br><br>ZADD <span class="hljs-built_in">KEY</span> [score member]...<br>ZADD studend <span class="hljs-number">89</span> tom <span class="hljs-number">98</span> jack <span class="hljs-number">76</span> rose<br><br>MULTI<br>...<br><span class="hljs-built_in">EXEC</span><br><br>Redis的事务还能保证一个事务内的命令依次执行而不被其他命令插入<br><br>开发者必须在事务执行出错后自己收拾剩下的摊子（将数据库复原回事务执行前的状态等）<br><br>Watch 命令用于监视一个(或多个) <span class="hljs-built_in">key</span> ，如果在事务执行之前这个(或这些) <span class="hljs-built_in">key</span> 被其他命令所改动，那么事务将被打断 (CAS)<br><br>EXPIRE<br><br>SORT<br><br>SORT <span class="hljs-built_in">key</span> ALPHA [字典排序]<br><br>SORT <span class="hljs-built_in">key</span> DESC<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql">单台设备的 Redis 的 QPS（Query <span class="hljs-keyword">Per</span> <span class="hljs-keyword">Second</span>，每秒钟处理完请求的次数） 是 MySQL 的 <span class="hljs-number">10</span> 倍，Redis 单机的 QPS 能轻松破 <span class="hljs-number">10</span>w，而 MySQL 单机的 QPS 很难破 <span class="hljs-number">1</span>w<br><br>单线程的 Redis QPS 可以达到 <span class="hljs-number">10</span>W<span class="hljs-operator">/</span>每秒<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs css">脑裂：多个主节点的现象<br>（主节点没有问题但是哨兵发现主节点无法连通将从节点选举为主节点的时候）<br><br><br>被降格为从节点的旧主节点<br><br>由于第一次同步是全量同步的方式，此时的从节点（<span class="hljs-selector-tag">A</span>）会清空掉自己本地的数据，然后再做全量同步<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>脑裂导致数据丢失，本质上是旧主节点降格为从节点之后，被清空数据再同步新主节点导致</p>
+</blockquote>
+<h3 id="脑裂解决方案"><a href="#脑裂解决方案" class="headerlink" title="脑裂解决方案"></a>脑裂解决方案</h3><figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs llvm">从节点下线时，禁止主节点写数据，直接返回error给客户端<br><br><br><span class="hljs-keyword">min</span>-slaves-<span class="hljs-keyword">to</span>-write <span class="hljs-keyword">x</span>：主节点必须要有至少 <span class="hljs-keyword">x</span> 个从节点连接，如果小于，主节点禁止写数据<br><br><span class="hljs-keyword">min</span>-slaves-<span class="hljs-keyword">max</span>-lag <span class="hljs-keyword">x</span>，主从数据复制和同步的延迟不能超过 <span class="hljs-keyword">x</span> 秒<br><br>避免原主库是假故障（哨兵认为故障，客户端认为非故障继续写数据，导致客户端写的数据丢失）<br></code></pre></td></tr></table></figure>
+
+<h3 id="过期删除策略"><a href="#过期删除策略" class="headerlink" title="过期删除策略"></a>过期删除策略</h3><figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs gauss">过期字典<br><br>惰性删除: 访问<span class="hljs-built_in">key</span>后发现已经过期就删除<br><br>定期删除：定时随机取出一定数量的<span class="hljs-built_in">key</span>检查并删除其中过期的部分，如果比例超出<span class="hljs-number">25</span>%则会再次执行检查<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意： 过期删除策略和内存淘汰策略不是同一个东西</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs">从库不会进行过期扫描，从库对过期的处理是被动的<br><br>Redis 内存满了，会出发内存淘汰机制、<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="内存淘汰算法"><a href="#内存淘汰算法" class="headerlink" title="内存淘汰算法"></a>内存淘汰算法</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">LRU</span> 全称是 Least Recently Used 翻译为最近最少使用，选择淘汰最近最少使用的数据<br><br>(随机采样的方式来淘汰数据，默认随机<span class="hljs-number">5</span>个淘汰最久没有使用的那个)<br><br>LFU 全称是 Least Frequently Used 翻译为最近最不常用的，依据数据访问次数来淘汰数据<br></code></pre></td></tr></table></figure>
+
+<h3 id="缓存设计"><a href="#缓存设计" class="headerlink" title="缓存设计"></a>缓存设计</h3><ol>
+<li>缓存雪崩 - 大量缓存同时过期（解决方案：将缓存失效时间随机打散、设置不过期）</li>
+<li>缓存击穿 - 热点数据过期（业务请求加锁、不给热点数据设置过期时间而是后台主动更新缓存）</li>
+<li>缓存穿透 - 数据库没有数据，缓存中也没法构建数据（非法请求限制、构建默认值）</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/cpselvis/p/6265825.html">布隆过滤器(Bloom Filter)的原理和实现</a></p>
+<p><a target="_blank" rel="noopener" href="https://learnku.com/articles/63352">布隆过滤器原理与实现 - golang</a></p>
+<blockquote>
+<p>一个很长的二进制向量和一系列随机映射函数，用于检索一个元素是否在一个集合中</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">它的优点是空间效率和查询时间都远远超过一般的算法<br></code></pre></td></tr></table></figure>
+
+<h3 id="Redis的ZSet-加-zrangebysocre-实现延迟队列"><a href="#Redis的ZSet-加-zrangebysocre-实现延迟队列" class="headerlink" title="Redis的ZSet 加 zrangebysocre 实现延迟队列"></a>Redis的ZSet 加 zrangebysocre 实现延迟队列</h3><h3 id="Redis-的大-key-如何处理？"><a href="#Redis-的大-key-如何处理？" class="headerlink" title="Redis 的大 key 如何处理？"></a>Redis 的大 key 如何处理？</h3><ol>
+<li>客户端超时阻塞</li>
+<li>网络阻塞</li>
+<li>del大key会阻塞工作线程</li>
+<li>内存分配不均（集群slot分配均匀的情况下）</li>
+</ol>
+<blockquote>
+<p>String 类型的值大于 10 KB \ Hash、List、Set、ZSet 类型的元素的个数超过 5000个 通常叫做大Key</p>
+</blockquote>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs clean">### 自带命令发现大key（集合只知道个数而不是实际内存量）<br>redis-cli --bigkeys<br><br>### 查看具体大小<br>MEMORY USAGE keyname1<br><br>### 字符串<br>STRLEN<br><br>### 列表List<br>LLEN<br><br>### hash哈希<br>HLEN<br><br>### Set类型<br>SCARD <br><br>### Sorted Set类型<br>ZCARD<br><br>### 第三方工具使用 RdbTools 工具查找大 key<br>redis-rdb-tools<br></code></pre></td></tr></table></figure>
+
+<h3 id="Redis管道技术（Pipeline）是客户端提供的一种批处理技术，用于一次处理多个-Redis-命令，提高交互性能"><a href="#Redis管道技术（Pipeline）是客户端提供的一种批处理技术，用于一次处理多个-Redis-命令，提高交互性能" class="headerlink" title="Redis管道技术（Pipeline）是客户端提供的一种批处理技术，用于一次处理多个 Redis 命令，提高交互性能"></a>Redis管道技术（Pipeline）是客户端提供的一种批处理技术，用于一次处理多个 Redis 命令，提高交互性能</h3><h3 id="Redis是不支持事务回滚的，需要程序员手动回滚"><a href="#Redis是不支持事务回滚的，需要程序员手动回滚" class="headerlink" title="Redis是不支持事务回滚的，需要程序员手动回滚"></a>Redis是不支持事务回滚的，需要程序员手动回滚</h3><h3 id="Redis分布式锁-SETNX-KEY-NAME-VALUE"><a href="#Redis分布式锁-SETNX-KEY-NAME-VALUE" class="headerlink" title="Redis分布式锁 SETNX KEY_NAME VALUE"></a>Redis分布式锁 SETNX KEY_NAME VALUE</h3><ol>
+<li>锁超时时间，守护进程自旋，无法限制业务执行时长</li>
+<li>redis集群模式下同步延迟（Redlock）</li>
+</ol>
+<h3 id="redis分片集群模式下还需要考虑同步延迟导致的分布式锁失效问题吗"><a href="#redis分片集群模式下还需要考虑同步延迟导致的分布式锁失效问题吗" class="headerlink" title="redis分片集群模式下还需要考虑同步延迟导致的分布式锁失效问题吗"></a>redis分片集群模式下还需要考虑同步延迟导致的分布式锁失效问题吗</h3><h3 id="redis分片集群模式"><a href="#redis分片集群模式" class="headerlink" title="redis分片集群模式"></a>redis分片集群模式</h3><h1 id="Full-stack-knowledge-system"><a href="#Full-stack-knowledge-system" class="headerlink" title="Full_stack_knowledge_system"></a>Full_stack_knowledge_system</h1><p><a target="_blank" rel="noopener" href="https://pdai.tech/">pdai.tech</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div></div>
+      <div>https://weiqiangxu.github.io/2023/12/08/redis/基础入门/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>December 8, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

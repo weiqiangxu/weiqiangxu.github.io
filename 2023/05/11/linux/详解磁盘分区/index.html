@@ -1,0 +1,664 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="简单学习磁盘分区是什么，如何使用，常用的命令有哪些">
+<meta property="og:type" content="article">
+<meta property="og:title" content="磁盘分区">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/05/11/linux/%E8%AF%A6%E8%A7%A3%E7%A3%81%E7%9B%98%E5%88%86%E5%8C%BA/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="简单学习磁盘分区是什么，如何使用，常用的命令有哪些">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://weiqiangxu.github.io/images/bg/linux.jpeg">
+<meta property="article:published_time" content="2023-05-11T10:40:12.000Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.944Z">
+<meta property="article:author" content="xuweiqiang">
+<meta property="article:tag" content="kubernetes">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://weiqiangxu.github.io/images/bg/linux.jpeg">
+  
+  
+  
+  <title>磁盘分区 - xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/images/bg/5.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">磁盘分区</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-05-11 18:40" pubdate>
+          2023-05-11, 6:40 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">磁盘分区</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h5 id="1-lsblk-List-Block-Devices-命令解释："><a href="#1-lsblk-List-Block-Devices-命令解释：" class="headerlink" title="1. lsblk (List Block Devices) 命令解释："></a>1. lsblk (List Block Devices) 命令解释：</h5><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs markdown"><span class="hljs-bullet">1.</span> NAME：块设备名称。<br><span class="hljs-bullet">2.</span> SIZE：块设备的容量大小。<br><span class="hljs-bullet">3.</span> TYPE：块设备类型，如磁盘（disk）或分区（part）。<br><span class="hljs-bullet">4.</span> MOUNTPOINT：设备被挂载的挂载点。<br><span class="hljs-bullet">5.</span> MODEL：硬件设备的制造商及型号。<br><span class="hljs-bullet">6.</span> FSTYPE：文件系统类型，比如ext4或NTFS。<br><span class="hljs-bullet">7.</span> UUID：块设备的唯一标识符。<br><span class="hljs-bullet">8.</span> LABEL：块设备的卷标或文件系统标签。<br><span class="hljs-bullet">9.</span> RO：块设备是否为只读。<br><span class="hljs-bullet">10.</span> RM：块设备是否可以通过软件进行移除。<br><span class="hljs-bullet">11.</span> PARTTYPE：如果块设备是分区，则该字段会显示分区类型。<br><span class="hljs-bullet">12.</span> PARTLABEL：如果块设备是分区，则该字段会显示分区卷标或文件系统标签。<br><span class="hljs-bullet">13.</span> PARTUUID：如果块设备是分区，则该字段会显示分区的唯一标识符。<br><br>这些指标可以帮助用户了解系统上的块设备，包括设备名称、容量、挂载点、文件系统类型等，从而更好地管理和使用系统。<br><br>[root@k8s-master network-scripts]# lsblk<br>NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT<br>sr0     11:0    1 203.6M  0 rom  <br>vda    253:0    0    60G  0 disk <br>└─vda1 253:1    0    60G  0 part /<br></code></pre></td></tr></table></figure>
+
+<h5 id="2-lsblk的MAJ-MIN和-TYPE为rom-是什么意思"><a href="#2-lsblk的MAJ-MIN和-TYPE为rom-是什么意思" class="headerlink" title="2. lsblk的MAJ:MIN和 TYPE为rom 是什么意思"></a>2. lsblk的MAJ:MIN和 TYPE为rom 是什么意思</h5><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs txt">lsblk命令显示的输出中<br>MAJ:MIN表示设备的主设备号和次设备号<br>主设备号用于识别驱动程序，而次设备号用于识别设备本身<br><br>TYPE为rom表示设备是只读设备<br>ROM是只读存储器（Read-Only Memory）的简称<br>它存储的数据无法被写入<br></code></pre></td></tr></table></figure>
+
+<h5 id="3-如何使用fdisk查看分区"><a href="#3-如何使用fdisk查看分区" class="headerlink" title="3. 如何使用fdisk查看分区"></a>3. 如何使用fdisk查看分区</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看磁盘分区</span><br>$ fdisk -l<br><br><span class="hljs-comment"># 查看某一个磁盘下面的分区</span><br>$ fdisk -l /dev/sda<br></code></pre></td></tr></table></figure>
+
+<h5 id="4-如何使用fdisk创建分区"><a href="#4-如何使用fdisk创建分区" class="headerlink" title="4. 如何使用fdisk创建分区"></a>4. 如何使用fdisk创建分区</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 下面演示: Linux 系统中创建一个 ext4 文件系统格式的、挂载在 /mnt/mydisk 目录下的分区了</span><br><br><span class="hljs-comment"># 查看当前的磁盘以及磁盘下的分区</span><br>$ lsblk<br><br><span class="hljs-comment"># 输入 m 命令，查看 fdisk 的命令帮助信息，了解可以使用的命令。</span><br><span class="hljs-comment"># 输入 n 命令，创建一个新的分区，按照提示输入分区号、起始扇区和结束扇区等信息。</span><br><span class="hljs-comment"># 输入 t 命令，修改分区类型，例如将分区类型修改为 Linux 文件系统（83）。</span><br><span class="hljs-comment"># 输入 w 命令，保存并退出 fdisk 工具</span><br><span class="hljs-comment"># 开始对/sda做分区 ,注意/dev/sda是必须存在的磁盘设备</span><br>$ fdisk /dev/sda<br><br><span class="hljs-comment"># 使用 mkfs 命令格式化创建的分区</span><br>$ mkfs.ext4 /dev/sda1<br><br><span class="hljs-comment"># 在系统中挂载分区</span><br><span class="hljs-comment"># 将新分区 /dev/sda1 挂载到 /mnt/mydisk</span><br><span class="hljs-comment"># 这样可以通过 /mnt/mydisk 访问到分区</span><br>$ <span class="hljs-built_in">mkdir</span> /mnt/mydisk<br>$ mount /dev/sda1 /mnt/mydisk<br></code></pre></td></tr></table></figure>
+
+<h5 id="5-x2F-mnt是干嘛用的"><a href="#5-x2F-mnt是干嘛用的" class="headerlink" title="5. &#x2F;mnt是干嘛用的"></a>5. &#x2F;mnt是干嘛用的</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">/mnt 是一个挂载点，用于挂载外部设备（如硬盘、USB 等）到文件系统中的目录。<br>通常，挂载点为 /mnt，但也可以在其他位置创建挂载点。在 Linux 中，MNT 表示挂载点（mount point）的缩写。<br></code></pre></td></tr></table></figure>
+
+<h5 id="6-mkfs-ext4是什么意思"><a href="#6-mkfs-ext4是什么意思" class="headerlink" title="6. mkfs.ext4是什么意思"></a>6. mkfs.ext4是什么意思</h5><figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs gams">mkfs.ext4是一个Linux命令，用于创建ext4文件系统。<br><span class="hljs-string">&quot;mkfs&quot;</span>代表<span class="hljs-string">&quot;make file system&quot;</span><br><span class="hljs-string">&quot;ext4&quot;</span>是第四个扩展文件系统（Extended <span class="hljs-keyword">File</span> <span class="hljs-keyword">System</span>）的缩写<br>是Linux中最常见的文件系统之一<br><br>使用mkfs.ext4命令可以对磁盘分区进行格式化，以便在该分区上创建文件系统并存储数据。<br></code></pre></td></tr></table></figure>
+
+
+<h5 id="7-mount-x2F-dev-x2F-sda1-x2F-mnt-x2F-mydisk是什么意思"><a href="#7-mount-x2F-dev-x2F-sda1-x2F-mnt-x2F-mydisk是什么意思" class="headerlink" title="7. mount &#x2F;dev&#x2F;sda1 &#x2F;mnt&#x2F;mydisk是什么意思"></a>7. mount &#x2F;dev&#x2F;sda1 &#x2F;mnt&#x2F;mydisk是什么意思</h5><p>这是一个Linux命令，用于将设备&#x2F;dev&#x2F;sda1（通常是硬盘分区）挂载（mount）到&#x2F;mnt&#x2F;mydisk目录中。<br>“mount”表示将一个文件系统连接到文件系统树的一个指定位置上<br>将磁盘分区挂载到一个目录中，可以使得该目录下面的文件和文件夹与该分区中的内容相对应。<br>在这个例子中，&#x2F;dev&#x2F;sda1分区上的数据将可以在&#x2F;mnt&#x2F;mydisk目录下访问。注意，要挂载一个设备<br>该设备必须首先被格式化并创建了文件系统，可以使用mkfs命令创建文件系统。</p>
+<h5 id="8-pvcreate-x2F-dev-x2F-sdb-是什么意思"><a href="#8-pvcreate-x2F-dev-x2F-sdb-是什么意思" class="headerlink" title="8. pvcreate &#x2F;dev&#x2F;sdb 是什么意思"></a>8. pvcreate &#x2F;dev&#x2F;sdb 是什么意思</h5><p>这个命令是Linux下用来创建物理卷（Physical Volume）的。具体来说：</p>
+<ul>
+<li>&#x2F;dev&#x2F;sdb 是要创建物理卷的设备文件。</li>
+<li>在运行pvcreate命令之前，这个设备文件必须是未被分区的空闲磁盘或分区。</li>
+<li>执行pvcreate后，该设备文件会被初始化为一个物理卷，然后可以将其添加到卷组（Volume Group）中，以供逻辑卷（Logical Volume）使用。</li>
+</ul>
+<h5 id="9-dd-if-x3D-x2F-dev-x2F-zero-of-x3D-x2F-dev-x2F-sdb-bs-x3D-1M-count-x3D-1024"><a href="#9-dd-if-x3D-x2F-dev-x2F-zero-of-x3D-x2F-dev-x2F-sdb-bs-x3D-1M-count-x3D-1024" class="headerlink" title="9. dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;&#x2F;dev&#x2F;sdb bs&#x3D;1M count&#x3D;1024"></a>9. dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;&#x2F;dev&#x2F;sdb bs&#x3D;1M count&#x3D;1024</h5><p>dd是Unix或类Unix系统中的命令，用于复制文件、转换格式、创建空文件和磁盘映像等操作。它是“数据块（Data Definition）”的缩写，因为它是以固定大小的数据块为单位操作数据的。在Linux系统中，dd命令也被广泛用于备份和还原硬盘，制作启动盘和光盘等操作。<br>该命令表示在 &#x2F;dev&#x2F;sdb 这个硬盘上创建一个大小为 1G 的空白文件。其中 if 表示输入文件，也就是要写入 &#x2F;dev&#x2F;sdb 的数据来源，这里设置为 &#x2F;dev&#x2F;zero，表示读取 0。of 表示输出文件，也就是写入 &#x2F;dev&#x2F;sdb 的数据目的地。bs 表示块大小，这里设置为 1M，表示每次写入 1MB 的数据。count 表示写入的块数，这里设置为 1024，表示一共写入 1024 个块，也就是 1G 的大小。这个命令也称作 dd 零填充，会在硬盘对应的设备文件中写入 0，用来清空硬盘数据。</p>
+<h4 id="10-linux上的空白文件是什么意思"><a href="#10-linux上的空白文件是什么意思" class="headerlink" title="10. linux上的空白文件是什么意思"></a>10. linux上的空白文件是什么意思</h4><p>空白文件是一种大小为零的文件。它们通常用于占据磁盘空间或作为占位符，例如在创建一个空目录时用作占位符文件。<br>使用dd命令创建空白文件可以更精确地控制文件的大小和位置，并且可以在复制或克隆磁盘映像时使用。<br>例如，可以使用dd命令创建一个特定大小的空白文件，并将其用作虚拟磁盘的镜像文件。这种方法经常用于创建虚拟机硬盘映像或备份数据。</p>
+<h5 id="11-什么叫已经给-x2F-dev-x2F-sdb划分了分区，不能不能作为物理卷使用，物理卷和分区是什么意思"><a href="#11-什么叫已经给-x2F-dev-x2F-sdb划分了分区，不能不能作为物理卷使用，物理卷和分区是什么意思" class="headerlink" title="11. 什么叫已经给&#x2F;dev&#x2F;sdb划分了分区，不能不能作为物理卷使用，物理卷和分区是什么意思"></a>11. 什么叫已经给&#x2F;dev&#x2F;sdb划分了分区，不能不能作为物理卷使用，物理卷和分区是什么意思</h5><p>在Linux下，物理卷（Physical Volume）和分区（Partition）是两个不同的概念。</p>
+<ul>
+<li>分区是指将一个磁盘或存储设备分成若干个大小不同的区域，每个分区可以独立地格式化、挂载和使用。</li>
+<li>物理卷是将一个或多个分区或磁盘组合成一个卷组（Volume Group），并对其进行格式化，以提供更灵活的存储管理方式。<br>如果对&#x2F;dev&#x2F;sdb进行分区，那么这个设备就不能作为一个物理卷使用。如果想要将其作为物理卷，需要先执行删除分区的操作，然后使用pvcreate命令将其初始化为一个物理卷。<br>需要注意的是，一般情况下，一个物理卷不能超过硬件限制的容量，而一个分区则可以。因此，使用物理卷可以更灵活地管理不同硬件设备、不同容量的存储资源。</li>
+</ul>
+<h4 id="12-linux的LVM是什么意思"><a href="#12-linux的LVM是什么意思" class="headerlink" title="12. linux的LVM是什么意思"></a>12. linux的LVM是什么意思</h4><p>逻辑卷管理器（Logical Volume Manager）的简称。<br>LVM通过虚拟化磁盘空间，将多个硬盘分区或物理磁盘组合成一个逻辑卷，并允许管理员在运行时动态地调整这些逻辑卷的大小。<br>在LVM中，管理员可以创建两个主要的逻辑卷</p>
+<ul>
+<li>物理卷（Physical Volume）</li>
+<li>卷组（Volume Group）<br>物理卷是指物理磁盘或分区，而卷组是将一个或多个物理卷组合在一起的逻辑单元。<br>LVM提供了更好的磁盘空间管理和灵活性，使管理员可以更好地满足服务器和存储的需求。LVM也广泛用于虚拟化环境中，以便在虚拟机之间动态分配磁盘空间。</li>
+</ul>
+<h3 id="13-df-h是什么，怎么看"><a href="#13-df-h是什么，怎么看" class="headerlink" title="13. df -h是什么，怎么看"></a>13. df -h是什么，怎么看</h3><p>df -h是一条Linux命令，用于显示文件系统磁盘使用情况的简明报告。<br>其中“-h”选项指定以人类可读的方式输出数据，即以可读性较高的GB、MB、KB等单位显示文件系统使用情况。</p>
+<p>通过运行df -h命令，可以查看文件系统磁盘使用情况的报告，<br>包括：文件系统名称、文件系统大小、已用空间、可用空间、使用率、挂载点等信息。按照默认顺序，该命令显示磁盘使用情况信息的单位是KB。<br>例如，下面是一条示例命令及输出结果：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs awk">$ df -h<br>文件系统           容量  已用  可用 已用% 挂载点<br>udev             <span class="hljs-number">3.9</span>G     <span class="hljs-number">0</span>  <span class="hljs-number">3.9</span>G    <span class="hljs-number">0</span>% /dev<br>tmpfs            <span class="hljs-number">798</span>M  <span class="hljs-number">1.7</span>M  <span class="hljs-number">797</span>M    <span class="hljs-number">1</span>% /run<br>tmpfs            <span class="hljs-number">3.9</span>G  <span class="hljs-number">159</span>M  <span class="hljs-number">3.8</span>G    <span class="hljs-number">4</span>% <span class="hljs-regexp">/dev/</span>shm<br>tmpfs            <span class="hljs-number">5.0</span>M  <span class="hljs-number">4.0</span>K  <span class="hljs-number">5.0</span>M    <span class="hljs-number">1</span>% <span class="hljs-regexp">/run/</span>lock<br>tmpfs            <span class="hljs-number">3.9</span>G     <span class="hljs-number">0</span>  <span class="hljs-number">3.9</span>G    <span class="hljs-number">0</span>% <span class="hljs-regexp">/sys/</span>fs/cgroup<br><span class="hljs-regexp">/dev/</span>sda1         <span class="hljs-number">15</span>G  <span class="hljs-number">6.9</span>G  <span class="hljs-number">7.3</span>G   <span class="hljs-number">49</span>% /<br><span class="hljs-regexp">/dev/</span>sda2        <span class="hljs-number">193</span>G   <span class="hljs-number">77</span>G  <span class="hljs-number">106</span>G   <span class="hljs-number">42</span>% /data<br></code></pre></td></tr></table></figure>
+
+<p>tmpfs的形式挂载，特定的目录比如&#x2F;tmp、&#x2F;var&#x2F;run、&#x2F;dev&#x2F;shm等的都是内存文件系统</p>
+<p>从上面的输出结果可以看出：该系统一共有5个文件系统，<br>其中&#x2F;dev&#x2F;sda1和&#x2F;dev&#x2F;sda2是已经挂载的硬盘分区，其它3个是内存文件系统。</p>
+<p>其中，&#x2F;dev&#x2F;sda1分区总容量为15G，已经使用了6.9G，还剩7.3G可用空间，使用率为49%；<br>而&#x2F;dev&#x2F;sda2分区总容量为193G，已经使用了77G，还剩106G可用空间，使用率为42%。</p>
+<h3 id="14-fdisk-x2F-dev-x2F-vda的扇区是什么意思"><a href="#14-fdisk-x2F-dev-x2F-vda的扇区是什么意思" class="headerlink" title="14. fdisk &#x2F;dev&#x2F;vda的扇区是什么意思"></a>14. fdisk &#x2F;dev&#x2F;vda的扇区是什么意思</h3><h3 id="15-linux-如何使用fdisk对一个磁盘分区"><a href="#15-linux-如何使用fdisk对一个磁盘分区" class="headerlink" title="15. linux 如何使用fdisk对一个磁盘分区"></a>15. linux 如何使用fdisk对一个磁盘分区</h3><p>使用 fdisk 命令，可以对 Linux 系统的磁盘进行分区。下面是使用 fdisk 命令对磁盘进行分区的步骤：</p>
+<ol>
+<li>首先，使用 fdisk 命令打开要分区的磁盘：  <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">sudo fdisk <span class="hljs-regexp">/dev/</span>sdX<br></code></pre></td></tr></table></figure>
+  其中，sdX 表示要分区的磁盘，例如 sda、sdb 等。</li>
+<li>然后，输入 m 键查看 fdisk 命令的帮助和选项。</li>
+<li>输入 n 命令来创建一个新分区。</li>
+<li>会提示你选择分区类型，如果是普通分区请选择 p，如果是扩展分区请选择 e。</li>
+<li>然后输入分区号（默认为 1），分配分区开始和结束的扇区编号或使用默认值。</li>
+<li>然后分配分区类型（如主分区、扩展分区、逻辑分区）和文件系统类型。</li>
+<li>最后，输入 w 命令保存分区表并退出 fdisk。</li>
+<li>最后使用 mkfs 命令来创建文件系统。  <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">sudo mkfs.ext4 <span class="hljs-regexp">/dev/</span>sdX1<br></code></pre></td></tr></table></figure>
+  其中，sdX1 表示要创建文件系统的分区，例如 sda1、sdb1 等。<br>完成上述步骤后，您就成功地对磁盘进行了分区。</li>
+</ol>
+<h3 id="16-linux磁盘设计、LVM、扇区"><a href="#16-linux磁盘设计、LVM、扇区" class="headerlink" title="16. linux磁盘设计、LVM、扇区"></a>16. linux磁盘设计、LVM、扇区</h3><h3 id="相关命令"><a href="#相关命令" class="headerlink" title="相关命令"></a>相关命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ lsblk<br>$ fdisk<br>$ /etc/sysconfig/network-scripts<br>$ <span class="hljs-built_in">dd</span><br>$ <span class="hljs-built_in">df</span> -h<br>$ <span class="hljs-built_in">df</span> -T<br>$ growpart<br>$ xfs_growfs<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/296777898">一篇看懂！Linux磁盘的管理（分区、格式化、挂载），LVM逻辑卷，RAID磁盘阵列</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/kubernetes/" class="category-chain-item">kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/kubernetes/">#kubernetes</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>磁盘分区</div>
+      <div>https://weiqiangxu.github.io/2023/05/11/linux/详解磁盘分区/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>May 11, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/05/18/linux/%E7%BD%91%E7%BB%9C/" title="linux与网络">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">linux与网络</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/05/06/kubernetes/containerd%E5%AE%89%E8%A3%85/" title="containerd安装">
+                        <span class="hidden-mobile">containerd安装</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

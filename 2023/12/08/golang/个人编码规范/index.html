@@ -1,0 +1,627 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="枚举值注释必须完善  禁止出现硬编码  有基本的单元测试验证（尽量使用断言而不是手动log人工判定单测是否通过）  接口粒度应该细小、接口依赖应该明确、接口入参出参应该明确，对象化，最好可以做到依赖抽象而不是直接依赖具体的实现  禁止在接口之中有隐藏的依赖条件（入参之中没有的参数比如环境变量，入参应该是决定输出的唯一条件）  接口颗粒度要小一些（入参、出参尽可能简化易读），如果逻辑过于复杂应该对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xuweiqiang&#39;s Notebook">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/12/08/golang/%E4%B8%AA%E4%BA%BA%E7%BC%96%E7%A0%81%E8%A7%84%E8%8C%83/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="枚举值注释必须完善  禁止出现硬编码  有基本的单元测试验证（尽量使用断言而不是手动log人工判定单测是否通过）  接口粒度应该细小、接口依赖应该明确、接口入参出参应该明确，对象化，最好可以做到依赖抽象而不是直接依赖具体的实现  禁止在接口之中有隐藏的依赖条件（入参之中没有的参数比如环境变量，入参应该是决定输出的唯一条件）  接口颗粒度要小一些（入参、出参尽可能简化易读），如果逻辑过于复杂应该对">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-08T12:17:57.933Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.933Z">
+<meta property="article:author" content="xuweiqiang">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-08 20:17" pubdate>
+          2023-12-08, 8:17 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none"></h1>
+            
+            
+              <div class="markdown-body">
+                
+                <ol>
+<li><p>枚举值注释必须完善</p>
+</li>
+<li><p>禁止出现硬编码</p>
+</li>
+<li><p>有基本的单元测试验证（尽量使用断言而不是手动log人工判定单测是否通过）</p>
+</li>
+<li><p>接口粒度应该细小、接口依赖应该明确、接口入参出参应该明确，对象化，最好可以做到依赖抽象而不是直接依赖具体的实现</p>
+</li>
+<li><p>禁止在接口之中有隐藏的依赖条件（入参之中没有的参数比如环境变量，入参应该是决定输出的唯一条件）</p>
+</li>
+<li><p>接口颗粒度要小一些（入参、出参尽可能简化易读），如果逻辑过于复杂应该对象化拆分，确保大接口拆出的小接口都走单元测试</p>
+</li>
+<li><p>禁止IDE右侧出现notice黄色告警（单词拼写错误、命名不规范、公有方法没注释等）</p>
+</li>
+<li><p>所有的指针访问都需要判定是否为nil</p>
+</li>
+<li><p>所有的数组访问都需要判定length防止数组越界</p>
+</li>
+<li><p>所有的除数都要判定被除数不是0</p>
+</li>
+<li><p>关于同步转异步，取决于业务场景。如果是接口响应不强依赖执行结果的，比如用户关注频道后发送欢迎语，关注成功后异步发送欢迎语即可，不能阻塞主要流程，因为用户端不强依赖欢迎语，但是需要快速进入主页面。</p>
+</li>
+<li><p>包命名规范</p>
+</li>
+<li><p>禁止滥用init，个人建议整个项目不应该有init，main函数也是唯一的执行入口</p>
+</li>
+<li><p>禁止滥用全局变量，应该保证依赖的关系足够清晰明了</p>
+</li>
+<li><p>模块依赖管理，包与包之间的依赖关系清晰(按功能分块按业务水平分层，按数据流垂直分层，每一层之间尽可能解耦)，比如三层架构、领域驱动模型等都是追求分层，数据对象模型每一层之间都是解耦的，比如vo(view object视图)和持久化层对象po(数据库映射对象)肯定是转换过的，而不是直接将po往http对外接口抛。</p>
+</li>
+<li><p>模块依赖管理，包的依赖应当尽可能放在私有属性(并且以选项模式注入依赖)。优点在于依赖会更加清晰容易管理，以及对于单元测试会友好很多。比如：</p>
+</li>
+</ol>
+<h5 id="1-不友好的写法"><a href="#1-不友好的写法" class="headerlink" title="1.不友好的写法"></a>1.不友好的写法</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> tool<br><br><span class="hljs-keyword">var</span> db *DB<br><br><span class="hljs-keyword">type</span> DB <span class="hljs-keyword">struct</span> &#123;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(db *DB)</span></span> Get() &#123;<br>&#125;<br><br><span class="hljs-keyword">type</span> A <span class="hljs-keyword">struct</span> &#123;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a *A)</span></span> Get() &#123;<br>	<span class="hljs-keyword">if</span> db == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;nil&quot;</span>)<br>	&#125;<br>	db.Get()<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// goland生成的B.Get单元测试</span><br><span class="hljs-keyword">package</span> tool<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;testing&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestA_Get</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>	tests := []<span class="hljs-keyword">struct</span> &#123;<br>		name <span class="hljs-type">string</span><br>	&#125;&#123;<br>		&#123;<br>			name: <span class="hljs-string">&quot;&quot;</span>,<br>		&#125;,<br>	&#125;<br>	<span class="hljs-keyword">for</span> _, tt := <span class="hljs-keyword">range</span> tests &#123;<br>		t.Run(tt.name, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>            <span class="hljs-comment">// 由于db未初始化是nil所以肯定会有异常</span><br>            <span class="hljs-comment">// 这种A的函数Get的依赖对于外部调用者而言是隐式的</span><br>            <span class="hljs-comment">// 应该将A的依赖变成显式，对单元测试和维护以及调用都会友好很多</span><br>			a := &amp;A&#123;&#125;<br>			a.Get()<br>		&#125;)<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="2-更改后的写法"><a href="#2-更改后的写法" class="headerlink" title="2.更改后的写法"></a>2.更改后的写法</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> tool<br><br><span class="hljs-keyword">var</span> db *DB<br><br><span class="hljs-keyword">type</span> DB <span class="hljs-keyword">struct</span> &#123;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(db *DB)</span></span> Get() &#123;<br>&#125;<br><br><span class="hljs-keyword">type</span> A <span class="hljs-keyword">struct</span> &#123;<br>	db *DB<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(a *A)</span></span> Get() &#123;<br>	<span class="hljs-keyword">if</span> a.db == <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;nil&quot;</span>)<br>	&#125;<br>	a.db.Get()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// goland生成的单元测试</span><br><span class="hljs-keyword">package</span> tool<br><br><span class="hljs-keyword">import</span> <span class="hljs-string">&quot;testing&quot;</span><br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestA_Get</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>	<span class="hljs-keyword">type</span> fields <span class="hljs-keyword">struct</span> &#123;<br>		db *DB<br>	&#125;<br>	tests := []<span class="hljs-keyword">struct</span> &#123;<br>		name   <span class="hljs-type">string</span><br>		fields fields<br>	&#125;&#123;<br>		&#123;<br>			name: <span class="hljs-string">&quot;&quot;</span>,<br>			fields: fields&#123;<br>                <span class="hljs-comment">// 此时依赖已经显示出来</span><br>                <span class="hljs-comment">// 对于单元测试更加友好</span><br>                <span class="hljs-comment">// 并且管理A的依赖也会更加直观</span><br>				db: <span class="hljs-built_in">new</span>(DB),<br>			&#125;,<br>		&#125;,<br>	&#125;<br>	<span class="hljs-keyword">for</span> _, tt := <span class="hljs-keyword">range</span> tests &#123;<br>		t.Run(tt.name, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>			a := &amp;A&#123;<br>				db: tt.fields.db,<br>			&#125;<br>			a.Get()<br>		&#125;)<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+<ol start="17">
+<li>易读，函数禁止超过50行，如果过长应该考虑适当拆分，看过一个函数300行并且参数还是interface，这种逻辑线上不出异常是非常困难的。</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 对于下面的函数而言，QueryC是QueryA和QueryB的合体</span><br><span class="hljs-comment">// 如果我要保证QueryA的正常那么输入只有2种情况，单元测试，很方便覆盖</span><br><span class="hljs-comment">// 但是如果保证QueryC的正常我需要验证4中输入情况，正常来说，就会懒，覆盖不充分</span><br><span class="hljs-comment">// 随着函数变大，输入的可能性变多，自然就会无法覆盖所有的情况</span><br><span class="hljs-keyword">package</span> tool<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">QueryA</span><span class="hljs-params">(a <span class="hljs-type">bool</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	<span class="hljs-keyword">if</span> a &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">1</span><br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">2</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">QueryB</span><span class="hljs-params">(a <span class="hljs-type">bool</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	<span class="hljs-keyword">if</span> a &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">3</span><br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">4</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">QueryC</span><span class="hljs-params">(a <span class="hljs-type">bool</span>, b <span class="hljs-type">bool</span>)</span></span> <span class="hljs-type">int</span> &#123;<br>	<span class="hljs-keyword">var</span> one <span class="hljs-type">int</span><br>	<span class="hljs-keyword">var</span> two <span class="hljs-type">int</span><br>	<span class="hljs-keyword">if</span> a &#123;<br>		one = <span class="hljs-number">1</span><br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		one = <span class="hljs-number">2</span><br>	&#125;<br>	<span class="hljs-keyword">if</span> b &#123;<br>		two = <span class="hljs-number">3</span><br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		two = <span class="hljs-number">4</span><br>	&#125;<br>	<span class="hljs-keyword">return</span> one + two<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<ol start="18">
+<li><p>扩展性,任何有可能或者极大可能有扩展需求的接口应该考虑扩展性（设计模式的应用）,常见的就是三层<code>if else</code>应当状态模式替换，日志logger的输出使用责任链模式，非法参数过滤器模式，带上设计模式的关键字可以提升可读性.</p>
+</li>
+<li><p>边界条件,接口编写应当考虑边界条件，比如query数据库起码要考虑加一下limit限制兜底的数据量。</p>
+</li>
+<li><p>函数的命名除了见名之意，加上一些设计模式的关键字也可以提高可读性，比如将A对象适配为B对象adapter后缀</p>
+</li>
+</ol>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs go"># 比如过滤器filter做后缀<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">EmojiFilter</span><span class="hljs-params">()</span></span><br><br># 比如拦截器<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TraceInterceptor</span><span class="hljs-params">()</span></span><br><br># 比如装饰器<br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(*water)</span></span> sugarDecorator()<br></code></pre></td></tr></table></figure>
+
+<ol start="21">
+<li><p>如何给变量取一个好名字</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">风格规范比如小驼峰<br>避开关键字<br>避免单字母<br>名词或者形容词见名知意<br>复数s<br>is作为bool类型前缀<br>避免有歧义的缩写（avg这样的没有 tmp这样的有）<br></code></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-comment">// 一些公认的简写</span><br>identification	id<br>average	avg<br>maximum	max<br>minimum	min<br>buffer	buf<br><span class="hljs-type">error</span>	err<br>message	msg<br>image	img<br>length	<span class="hljs-built_in">len</span><br>library	lib<br>password	pwd<br>position	pos<br>data transfer object	dto<br>view object	vo<br></code></pre></td></tr></table></figure>
+</li>
+<li><p>方法命名</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">个人建议在见名知意的基础上，除了翻译这样的操作，可以加入一些设计模式关键字比如adapter\chain\invoke之类的<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="架构设计角度"><a href="#架构设计角度" class="headerlink" title="架构设计角度"></a>架构设计角度</h3><ol>
+<li>微服务之间解耦（mongodb&#x2F;MySQL数据库层隔离、redis隔离(key业务划分&#x2F;微服务之间隔离))</li>
+<li>禁止随意将其他微服务依赖的数据库写入到正在开发的微服务配置，业务数据访问走GRPC</li>
+<li>错误日志的错误信息严格按照标准(logger)</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div></div>
+      <div>https://weiqiangxu.github.io/2023/12/08/golang/个人编码规范/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>December 8, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,696 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="使用NAT实现数据转发其中包括DNAT和SNAT实验实现公网访问后转发到局域网的服务以及从内部网络命名空间配置SNAT访问公网服务">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NAT配置公网访问">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/08/20/network/NAT%E9%85%8D%E7%BD%AE%E5%85%AC%E7%BD%91%E8%AE%BF%E9%97%AE/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="使用NAT实现数据转发其中包括DNAT和SNAT实验实现公网访问后转发到局域网的服务以及从内部网络命名空间配置SNAT访问公网服务">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://weiqiangxu.github.io/images/bg/network.png">
+<meta property="article:published_time" content="2023-08-20T07:50:12.000Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.947Z">
+<meta property="article:author" content="xuweiqiang">
+<meta property="article:tag" content="network">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://weiqiangxu.github.io/images/bg/network.png">
+  
+  
+  
+  <title>NAT配置公网访问 - xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/images/bg/computer.jpeg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle">NAT配置公网访问</span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-20 15:50" pubdate>
+          2023-08-20, 3:50 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">NAT配置公网访问</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="一、概念"><a href="#一、概念" class="headerlink" title="一、概念"></a>一、概念</h3><h5 id="1-NAT"><a href="#1-NAT" class="headerlink" title="1.NAT"></a>1.NAT</h5><p>NAT（网络地址转换）是一种网络技术，一般用于局域网和公网之间IP地址转换，常用iptables实现。</p>
+<h5 id="2-DNAT"><a href="#2-DNAT" class="headerlink" title="2.DNAT"></a>2.DNAT</h5><p>DNAT（目标网络地址转换）是NAT的一种形式，它将目标IP地址和端口转换为不同的IP地址和端口，通常用于将外部请求转发到内部网络中的特定服务器上。一般通过公网IP进来公网网卡的数据包更改目的ip或端口访问到内部服务。</p>
+<h5 id="3-SNAT"><a href="#3-SNAT" class="headerlink" title="3.SNAT"></a>3.SNAT</h5><p>SNAT（源网络地址转换）是NAT的另一种形式，它将发送方的IP地址和端口转换为不同的IP地址和端口。主要用于局域网内的多台设备通过同一个公共IP地址访问互联网时，可以使用SNAT将内部设备的源IP地址转换成公共IP地址。这样可以避免互联网上的服务器将响应发送回源IP地址时的冲突。</p>
+<h3 id="二、配置DNAT规则让外部访问内部网络"><a href="#二、配置DNAT规则让外部访问内部网络" class="headerlink" title="二、配置DNAT规则让外部访问内部网络"></a>二、配置DNAT规则让外部访问内部网络</h3><ol>
+<li>购买腾讯云服务器A上安装一个docker，运行一个Nginx服务，配置DNAT可以使用公网IP访问Nginx服务.</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ yum install -y docker<br>$ systemctl start docker<br>$ docker run -itd --name nginx-test nginx<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>配置NAT使用公网IP与自定义端口可访问Nginx服务</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># iptables查看NAT规则</span><br>$ iptables -t nat -L<br><br><span class="hljs-comment"># docker容器ip地址</span><br>$ docker inspect nginx-test | grep IPAddress<br><br><span class="hljs-comment"># 配置公网IP与8080端口请求转发到本机80端口</span><br><span class="hljs-comment"># 10.0.8.4 &lt;公网数据入口网卡IP&gt; 8989 &lt;公网端口号&gt; to-destination &lt;容器IP地址&gt;:&lt;容器端口&gt;</span><br>$ iptables -t nat -A PREROUTING -d 10.0.8.4 -p tcp --dport 8989 -j DNAT --to-destination 172.17.0.2:80<br><br><span class="hljs-comment"># 配置完成后可以通过腾讯云&lt;公网IP&gt;:8989访问到docker服务</span><br><span class="hljs-comment"># 如何删除iptables规则</span><br>$ iptables -t nat -D PREROUTING 1<br></code></pre></td></tr></table></figure>
+
+<h3 id="三、配置SNAT从容器内部访问外网"><a href="#三、配置SNAT从容器内部访问外网" class="headerlink" title="三、配置SNAT从容器内部访问外网"></a>三、配置SNAT从容器内部访问外网</h3><ol>
+<li>查看docker的SNAT的效果如何让容器可以访问外网的</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 工具容器</span><br>$ docker run -itd --name box-test busybox<br><br><span class="hljs-comment"># 配置docker容器访问</span><br>$ docker <span class="hljs-built_in">exec</span> -it box-test /bin/sh<br><br><span class="hljs-comment"># 容器内ping baidu.com</span><br><span class="hljs-comment"># 再次查看POSTROUTING规则发现匹配次数增多</span><br>$ iptables -t nat -nvL<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>手动分配网络和SNAT</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash">yum install -y bridge-utils<br>ip netns add container1<br>ip netns add container2<br>ip netns list<br>ip <span class="hljs-built_in">link</span> add veth1 <span class="hljs-built_in">type</span> veth peer name veth2<br>ip <span class="hljs-built_in">link</span> add veth3 <span class="hljs-built_in">type</span> veth peer name veth4<br>ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> veth2 netns container1<br>ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> veth4 netns container2<br>ip netns <span class="hljs-built_in">exec</span> container1 ip addr add 10.1.1.5/24 dev veth2<br>ip netns <span class="hljs-built_in">exec</span> container1 ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> veth2 up<br>ip netns <span class="hljs-built_in">exec</span> container1 ip route add default via 10.1.1.1<br>ip netns <span class="hljs-built_in">exec</span> container2 ip addr add 10.1.1.7/24 dev veth4<br>ip netns <span class="hljs-built_in">exec</span> container2 ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> veth4 up<br>ip netns <span class="hljs-built_in">exec</span> container2 ip route add default via 10.1.1.1<br>brctl addbr br-link<br>brctl addif br-link veth1<br>brctl addif br-link veth3<br>ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> veth1 up<br>ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> veth3 up<br>ip addr add 10.1.1.1/24 dev br-link<br>ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> br-link up<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 检查ipv4转发</span><br>sysctl net.ipv4.ip_forward<br><br><span class="hljs-comment"># 打开ipv4转发</span><br>sysctl -w net.ipv4.ip_forward=1<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 此时没有配置SNAT是无法通讯的</span><br>ip netns <span class="hljs-built_in">exec</span> container1 ping baidu.com<br><br><span class="hljs-comment"># 测试容器之间网络互通</span><br><span class="hljs-comment"># ip netns exec container1 ping &lt;宿主机eth0&gt;</span><br>ip netns <span class="hljs-built_in">exec</span> container1 ping 10.0.8.4<br><br><span class="hljs-comment"># ip netns exec container1 ping &lt;同交换机switch\bridge网段容器ip&gt;</span><br>ip netns <span class="hljs-built_in">exec</span> container1 ping 10.1.1.7<br><br><span class="hljs-comment"># iptables -t nat -A POSTROUTING -s 10.1.1.0/24 -o &lt;宿主机外网接口&gt; -j MASQUERADE</span><br>iptables -t nat -A POSTROUTING -s 10.1.1.0/24 -o eth0 -j MASQUERADE<br><br><span class="hljs-comment"># 或者(xx是服务器 IP)</span><br>iptables -t nat -A POSTROUTING -s 10.1.1.0/24 -o eth0 -j SNAT --to-source x.x.x.x<br><br><span class="hljs-comment"># 删除NAT规则</span><br>iptables -t nat -D POSTROUTING 1<br>iptables -t nat -nvL<br><br><span class="hljs-comment"># ping baidu.com</span><br>ip netns <span class="hljs-built_in">exec</span> container1 ping baidu.com<br></code></pre></td></tr></table></figure>
+
+<h3 id="相关疑问"><a href="#相关疑问" class="headerlink" title="相关疑问"></a>相关疑问</h3><h5 id="1-iptables常用命令"><a href="#1-iptables常用命令" class="headerlink" title="1.iptables常用命令"></a>1.iptables常用命令</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># iptables查看NAT规则</span><br>$ iptables -t nat -L<br><br><span class="hljs-comment"># 查看iptables规则和其匹配次数</span><br>$ iptables -t nat -nvL<br></code></pre></td></tr></table></figure>
+
+<h5 id="2-iptables的PREROUTING-POSTROUTING-OUTPUT-INPUT分别干嘛的"><a href="#2-iptables的PREROUTING-POSTROUTING-OUTPUT-INPUT分别干嘛的" class="headerlink" title="2.iptables的PREROUTING\POSTROUTING\OUTPUT\INPUT分别干嘛的"></a>2.iptables的PREROUTING\POSTROUTING\OUTPUT\INPUT分别干嘛的</h5><p>iptables是一个用于Linux系统的防火墙工具，用于配置和管理网络数据包过滤规则。其中的PREROUTING、POSTROUTING和OUTPUT是iptables的三个不同的表，用于不同的数据包处理阶段。</p>
+<ul>
+<li><p>PREROUTING表: 进入路由系统的数据包。数据包路由之前进行处理，常用目标地址的修改、端口重定向等。</p>
+</li>
+<li><p>POSTROUTING表: 离开路由系统的数据包。数据包路由之后进行处理，常用源地址的修改等。常见的使用场景SNAT等。</p>
+</li>
+<li><p>OUTPUT表: 本地产生的数据包。它在数据包从本地应用程序发送出去之前进行处理，可以对数据包进行一些操作，例如目标地址的修改、端口重定向等。常见的使用场景包括阻止&#x2F;允许本地应用程序访问特定的目标地址&#x2F;端口等。</p>
+</li>
+<li><p>INPUT表: 是 iptables 规则中的一个 chain（链），它用于控制数据包进入系统的行为。当一个数据包进入系统时，它首先会经过 INPUT chain 中的规则进行过滤和处理。</p>
+</li>
+</ul>
+<p>综上所述，PREROUTING表用于处理进入路由系统的数据包，POSTROUTING表用于处理离开路由系统的数据包，OUTPUT表用于处理本地产生的数据包。</p>
+<h5 id="3-什么是静态NAT和动态NAT"><a href="#3-什么是静态NAT和动态NAT" class="headerlink" title="3.什么是静态NAT和动态NAT"></a>3.什么是静态NAT和动态NAT</h5><p>一个私有IP固定映射一个公有IP地址，提供内网服务器的对外访问服务是静态。动态NAT是私有IP映射地址池中的公有IP，映射关系是动态的，临时的。</p>
+<h5 id="4-如何删除iptables-NAT规则"><a href="#4-如何删除iptables-NAT规则" class="headerlink" title="4.如何删除iptables NAT规则"></a>4.如何删除iptables NAT规则</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">数字1是链的index索引</span><br>iptables -t nat -D PREROUTING 1<br><br>iptables -t nat -D OUTPUT 1<br></code></pre></td></tr></table></figure>
+
+<h5 id="5-本机器curl本机器网卡会经过iptables吗"><a href="#5-本机器curl本机器网卡会经过iptables吗" class="headerlink" title="5.本机器curl本机器网卡会经过iptables吗"></a>5.本机器curl本机器网卡会经过iptables吗</h5><p>在本机上使用curl命令访问IP地址为本机网卡IP<code>10.0.8.4</code>的服务端口8989，那么这个请求不会经过iptables防火墙。iptables是Linux操作系统中的一个防火墙管理工具，在本机上进行网络请求，请求的目标IP地址是本机的网卡IP地址，那么这个请求是走本机的网络协议栈直接发送和接收的，不会经过iptables的过滤。iptables主要针对通过本机的网络数据流量进行过滤和管理。</p>
+<h5 id="6-output-input表常用规则"><a href="#6-output-input表常用规则" class="headerlink" title="6.output\input表常用规则"></a>6.output\input表常用规则</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 允许所有出站数据包</span><br>iptables -A OUTPUT -j ACCEPT<br><br><span class="hljs-comment"># 允许源IP地址为192.168.1.100的出站数据包</span><br>iptables -A OUTPUT -s 192.168.1.100 -j ACCEPT<br><br><span class="hljs-comment"># 拒绝目标端口为80的出站数据包</span><br>iptables -A OUTPUT -p tcp --dport 80 -j REJECT<br><br><span class="hljs-comment"># 重定向目标端口为8080的出站数据包到本地的1234端口</span><br><span class="hljs-comment"># 所有从系统中发出的目标端口为 8080 的 TCP 连接重定向到端口号为 1234 的端口</span><br>iptables -A OUTPUT -p tcp --dport 8080 -j REDIRECT --to-ports 1234<br><br><span class="hljs-comment"># 允许所有来源地址的 SSH 连接进入系统</span><br>iptables -A INPUT -p tcp --dport 22 -j ACCEPT<br></code></pre></td></tr></table></figure>
+
+<h5 id="7-output和postrouting之间的区别是什么"><a href="#7-output和postrouting之间的区别是什么" class="headerlink" title="7.output和postrouting之间的区别是什么"></a>7.output和postrouting之间的区别是什么</h5><ol>
+<li>output链：</li>
+</ol>
+<ul>
+<li>位置：output链是在数据包被<code>本地计算机发出之前</code>执行的。</li>
+<li>功能：output链用于处理从本地计算机发出的数据包，常用于对本地出站流量进行过滤和控制。</li>
+<li>示例：限制本地计算机上的某个应用程序只能访问特定的目的地地址和端口(linux用户访问端口\SSH访问限制等)。</li>
+</ul>
+<ol start="2">
+<li>postrouting链：</li>
+</ol>
+<ul>
+<li>位置：postrouting链是在数据包<code>离开本地计算机之前</code>执行的。</li>
+<li>功能：postrouting链用于对数据包进行NAT操作，主要是对数据包的源地址或目标地址进行转换。</li>
+<li>示例：配置网络地址转换以实现多台内部主机共享一个公共IP地址(SNAT)。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 限制username用户只能访问80端口的HTTP服务，其他端口将被丢弃</span><br>iptables -A OUTPUT -p tcp --dport 80 -m owner --uid-owner username -j DROP<br><br><span class="hljs-comment"># 将内部网络192.168.0.0/24的源地址转换为本地计算机上eth0接口的IP地址</span><br>iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE<br></code></pre></td></tr></table></figure>
+
+<h5 id="8-MASQUERADE是什么意思"><a href="#8-MASQUERADE是什么意思" class="headerlink" title="8.MASQUERADE是什么意思"></a>8.MASQUERADE是什么意思</h5><p>MASQUERADE是一种网络地址转换（NAT）技术，在iptables中表示对源IP地址进行伪装的操作。当数据包从内部网络转发到外部网络时，使用MASQUERADE可以将源IP地址替换为出口接口的IP地址，常使用MASQUERADE来处理出站流量。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 当数据包源IP是192.168.0.0/24网段内的IP，并且从eth0接口发送出去时，将源IP地址进行伪装（使用eth0接口的IP地址）</span><br><span class="hljs-comment"># 从内部网络发出的数据包都会经过MASQUERADE操作，并将源IP地址替换为eth0接口的IP地址，从而隐藏了内部网络的真实IP地址</span><br><span class="hljs-comment"># 就是对ip段192.168.0.0/24进行SNAT</span><br>iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE<br></code></pre></td></tr></table></figure>
+
+<h5 id="9-读懂iptables的意思"><a href="#9-读懂iptables的意思" class="headerlink" title="9.读懂iptables的意思"></a>9.读懂iptables的意思</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建docker之后有这样一条规则，当docker内容器访问外网的时候匹配次数pkts会增大</span><br><span class="hljs-comment"># 用于将来自docker0接口以外的172.17.0.0/16子网的流量进行MASQUERADE伪装处理（SNAT操作）</span><br><span class="hljs-comment"># 允许从docker0接口以外发出的流量通过iptables进行NAT</span><br>Chain POSTROUTING (policy ACCEPT 339 packets, 21398 bytes)<br> pkts bytes target     prot opt <span class="hljs-keyword">in</span>     out     <span class="hljs-built_in">source</span>               destination         <br>    6   417 MASQUERADE  all  --  *      !docker0  172.17.0.0/16        0.0.0.0/0<br></code></pre></td></tr></table></figure>
+
+<h5 id="10-docker如何让容器可访问外部网络的"><a href="#10-docker如何让容器可访问外部网络的" class="headerlink" title="10.docker如何让容器可访问外部网络的"></a>10.docker如何让容器可访问外部网络的</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># SNAT</span><br>iptables -t nat -A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE<br></code></pre></td></tr></table></figure>
+
+<h5 id="11-tcpdump如何指定目标和源"><a href="#11-tcpdump如何指定目标和源" class="headerlink" title="11.tcpdump如何指定目标和源"></a>11.tcpdump如何指定目标和源</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">tcpdump -nei br-link src &lt;<span class="hljs-built_in">source</span> ip&gt;<br>tcpdump -nei br-link dst &lt;destination ip&gt;<br>tcpdump -nei eth0 src &lt;src ip&gt; and dst &lt;dst ip&gt;<br>tcpdump -nei eth0 port &lt;port&gt;<br></code></pre></td></tr></table></figure>
+
+<h5 id="12-net-ipv4-ip-forward和iptables的snat有什么关系"><a href="#12-net-ipv4-ip-forward和iptables的snat有什么关系" class="headerlink" title="12.net.ipv4.ip_forward和iptables的snat有什么关系"></a>12.net.ipv4.ip_forward和iptables的snat有什么关系</h5><p><code>net.ipv4.ip_forward</code>和<code>iptables</code>的SNAT（Source Network Address Translation）功能是网络中的两个不同的概念，但它们在实现网络转发和网络地址转换方面存在一定的关系。</p>
+<ol>
+<li><p><code>net.ipv4.ip_forward</code>：此参数用于控制Linux系统是否启用IPv4转发功能。通过将其值设置为1，可以启用IPv4转发，从而允许Linux系统作为路由器来转发数据包。当数据包到达Linux系统时，但不是目标主机的地址时，如果IPv4转发已打开，系统将尝试将数据包转发到正确的目标地址。</p>
+</li>
+<li><p><code>iptables</code>的SNAT：SNAT是一种网络地址转换技术，用于修改数据包的源IP地址。在Linux系统中，可以使用<code>iptables</code>命令来配置SNAT规则。通过配置适当的SNAT规则，您可以将源IP地址从内部网络转换成外部网络的IP地址，从而实现内部网络与外部网络之间的通信。</p>
+</li>
+</ol>
+<p>关系：</p>
+<ul>
+<li>当启用了<code>net.ipv4.ip_forward</code>参数，Linux系统将充当路由器，并根据路由表将数据包转发到正确的目标地址。</li>
+<li>当数据包在转发过程中经过Linux系统时，<code>iptables</code>的SNAT规则可以用于修改数据包的源IP地址，以便正确进行地址转换，从而实现数据包在不同网络之间的传递。</li>
+</ul>
+<p>总结来说，<code>net.ipv4.ip_forward</code>参数用于启用Linux系统的IPv4转发功能，而<code>iptables</code>的SNAT功能则涉及修改数据包的源IP地址，以便进行网络地址转换。这两者一起使用可以实现跨网络的数据包转发和地址转换。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/kubernetes/" class="category-chain-item">kubernetes</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/network/">#network</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>NAT配置公网访问</div>
+      <div>https://weiqiangxu.github.io/2023/08/20/network/NAT配置公网访问/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>August 20, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/08/23/network/%E6%9E%84%E5%BB%BAVPN%E9%80%9A%E8%AE%AF/" title="构建VPN通讯">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">构建VPN通讯</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/08/20/network/%E5%A6%82%E4%BD%95%E6%9E%84%E5%BB%BAvxlan%E7%BD%91%E7%BB%9C/" title="如何构建vxlan网络">
+                        <span class="hidden-mobile">如何构建vxlan网络</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>

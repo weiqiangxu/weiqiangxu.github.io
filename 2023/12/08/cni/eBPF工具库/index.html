@@ -1,0 +1,567 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/images/icon/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="xuweiqiang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="工具库  1$ go get github.com&#x2F;cilium&#x2F;ebpf  https:&#x2F;&#x2F;pkg.go.dev&#x2F;github.com&#x2F;cilium&#x2F;ebpf  示例  12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xuweiqiang&#39;s Notebook">
+<meta property="og:url" content="https://weiqiangxu.github.io/2023/12/08/cni/eBPF%E5%B7%A5%E5%85%B7%E5%BA%93/index.html">
+<meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
+<meta property="og:description" content="工具库  1$ go get github.com&#x2F;cilium&#x2F;ebpf  https:&#x2F;&#x2F;pkg.go.dev&#x2F;github.com&#x2F;cilium&#x2F;ebpf  示例  12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-08T12:17:57.922Z">
+<meta property="article:modified_time" content="2023-12-08T12:17:57.922Z">
+<meta property="article:author" content="xuweiqiang">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>xuweiqiang&#39;s Notebook</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"weiqiangxu.github.io","root":"/","version":"1.9.4","typing":{"enable":false,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>xuweiqiang&#39;s Notebook</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-08 20:17" pubdate>
+          2023-12-08, 8:17 PM
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none"></h1>
+            
+            
+              <div class="markdown-body">
+                
+                <ol>
+<li>工具库</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ go get github.com/cilium/ebpf<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://pkg.go.dev/github.com/cilium/ebpf">https://pkg.go.dev/github.com/cilium/ebpf</a></p>
+<ol start="2">
+<li>示例</li>
+</ol>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">package</span> ebpf_example<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;context&quot;</span><br>	<span class="hljs-string">&quot;fmt&quot;</span><br>	<span class="hljs-string">&quot;github.com/cilium/ebpf&quot;</span><br>	<span class="hljs-string">&quot;github.com/rodaine/table&quot;</span><br>	<span class="hljs-string">&quot;golang.org/x/sys/unix&quot;</span><br>	<span class="hljs-string">&quot;os&quot;</span><br>	<span class="hljs-string">&quot;unsafe&quot;</span><br>)<br><br><span class="hljs-keyword">const</span> (<br>	NodeMapName       = <span class="hljs-string">&quot;my_node&quot;</span><br>	NodeMapMaxEntries = <span class="hljs-number">65536</span><br>	MapRoot           = <span class="hljs-string">&quot;/sys/fs/bpf/tc/globals/&quot;</span><br>)<br><br><span class="hljs-keyword">type</span> NodeMap <span class="hljs-keyword">struct</span> &#123;<br>	*ebpf.Map<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewNodeMap</span><span class="hljs-params">()</span></span> *NodeMap &#123;<br>	<span class="hljs-keyword">return</span> &amp;NodeMap&#123;&#125;<br>&#125;<br><br><span class="hljs-keyword">type</span> NodeMapKey <span class="hljs-keyword">struct</span> &#123;<br>	NodeId <span class="hljs-type">uint32</span>  <span class="hljs-string">`align:&quot;node_id&quot;`</span><br>	Type   AuxType <span class="hljs-string">`align:&quot;type&quot;`</span><br>&#125;<br><br><span class="hljs-keyword">type</span> NodeMapValue <span class="hljs-keyword">struct</span> &#123;<br>	Value1 <span class="hljs-type">uint32</span> <span class="hljs-string">`align:&quot;value1&quot;`</span><br>	Value2 <span class="hljs-type">uint32</span> <span class="hljs-string">`align:&quot;value2&quot;`</span><br>	Value3 <span class="hljs-type">uint64</span> <span class="hljs-string">`align:&quot;value3&quot;`</span><br>&#125;<br><br><span class="hljs-comment">// GetBaseHashMapSpec 获取bpf spec对象</span><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">GetBaseHashMapSpec</span><span class="hljs-params">(name <span class="hljs-type">string</span>, keySize <span class="hljs-type">uint32</span>, valueSize <span class="hljs-type">uint32</span>, maxEntries <span class="hljs-type">uint32</span>)</span></span> *ebpf.MapSpec &#123;<br>	spec := &amp;ebpf.MapSpec&#123;<br>		Name:       name,<br>		Type:       ebpf.Hash,<br>		MaxEntries: maxEntries,<br>		Flags:      unix.BPF_F_NO_PREALLOC,<br>		KeySize:    keySize,<br>		Pinning:    ebpf.PinByName,<br>		ValueSize:  valueSize,<br>	&#125;<br>	<span class="hljs-keyword">if</span> spec.Type == ebpf.HashOfMaps &#123;<br>		spec.InnerMap = <span class="hljs-literal">nil</span><br>	&#125;<br>	<span class="hljs-keyword">return</span> spec<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">NewBpfMap</span><span class="hljs-params">(spec *ebpf.MapSpec)</span></span> (*ebpf.Map, <span class="hljs-type">error</span>) &#123;<br>	<span class="hljs-comment">//check root dir</span><br>	<span class="hljs-keyword">if</span> _, err := os.Stat(MapRoot); os.IsNotExist(err) &#123;<br>		<span class="hljs-keyword">if</span> err := os.MkdirAll(MapRoot, <span class="hljs-number">0755</span>); err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, fmt.Errorf(<span class="hljs-string">&quot;create bpf map directory fail: %s&quot;</span>, err)<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-comment">//check map exist</span><br>	filePath := MapRoot + spec.Name<br>	isExist := <span class="hljs-literal">true</span><br>	<span class="hljs-keyword">if</span> _, err := os.Stat(filePath); os.IsNotExist(err) &#123;<br>		isExist = <span class="hljs-literal">false</span><br>	&#125;<br><br>	<span class="hljs-comment">//create map</span><br>	<span class="hljs-keyword">var</span> ebpfMap *ebpf.Map<br>	<span class="hljs-keyword">var</span> err <span class="hljs-type">error</span><br>	<span class="hljs-keyword">if</span> !isExist &#123;<br>		ebpfMap, err = ebpf.NewMapWithOptions(spec, ebpf.MapOptions&#123;PinPath: MapRoot&#125;)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>		&#125;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		ebpfMap, err = ebpf.LoadPinnedMap(filePath, <span class="hljs-literal">nil</span>)<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>, err<br>		&#125;<br>	&#125;<br><br>	<span class="hljs-keyword">return</span> ebpfMap, <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *NodeMap)</span></span> InitMap() <span class="hljs-type">error</span> &#123;<br>	keySize := <span class="hljs-type">uint32</span>(unsafe.Sizeof(NodeMapKey&#123;&#125;))<br>	valueSize := <span class="hljs-type">uint32</span>(unsafe.Sizeof(NodeMapValue&#123;&#125;))<br>	mapSpc := GetBaseHashMapSpec(NodeMapName, keySize, valueSize, NodeMapMaxEntries)<br>	bm, err := NewBpfMap(mapSpc)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br>	m.Map = bm<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *NodeMap)</span></span> Start(ctx context.Context) <span class="hljs-type">error</span> &#123;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-keyword">type</span> AuxType <span class="hljs-type">uint32</span><br><br><span class="hljs-keyword">const</span> (<br>	DhcpRelayDev AuxType = <span class="hljs-number">0</span> <span class="hljs-comment">// 节点上的dhcp_relay设备</span><br>	BroadcastDev AuxType = <span class="hljs-number">1</span> <span class="hljs-comment">// 节点上的b cast设备</span><br>	MulticastDev AuxType = <span class="hljs-number">2</span> <span class="hljs-comment">// 节点上的m cast设备</span><br>	RouterDev    AuxType = <span class="hljs-number">3</span> <span class="hljs-comment">// 节点上的router设备</span><br>	MirrorDev    AuxType = <span class="hljs-number">4</span> <span class="hljs-comment">// 节点上的mirror设备</span><br>	MirrorIp     AuxType = <span class="hljs-number">5</span> <span class="hljs-comment">// 节点提供的mirror IP</span><br>	InnerIp      AuxType = <span class="hljs-number">6</span> <span class="hljs-comment">// 节点提供的内部通信的IP（东西口IP）</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *NodeMap)</span></span> Insert(nodeId <span class="hljs-type">uint32</span>, typ AuxType, value1 <span class="hljs-type">uint32</span>, value2 <span class="hljs-type">uint32</span>, value3 <span class="hljs-type">uint64</span>) <span class="hljs-type">error</span> &#123;<br>	key := NodeMapKey&#123;NodeId: nodeId, Type: typ&#125;<br>	val := NodeMapValue&#123;Value1: value1, Value2: value2, Value3: value3&#125;<br>	err := m.Map.Put(key, val)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *NodeMap)</span></span> Delete(nodeId <span class="hljs-type">uint32</span>, typ AuxType) <span class="hljs-type">error</span> &#123;<br>	key := NodeMapKey&#123;NodeId: nodeId, Type: typ&#125;<br>	err := m.Map.Delete(key)<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		<span class="hljs-keyword">return</span> err<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-params">(m *NodeMap)</span></span> Dump() &#123;<br>	iterator := m.Iterate()<br>	tbl := table.New(<span class="hljs-string">&quot;node_id&quot;</span>, <span class="hljs-string">&quot;key_type&quot;</span>, <span class="hljs-string">&quot;value1&quot;</span>, <span class="hljs-string">&quot;value2&quot;</span>, <span class="hljs-string">&quot;value3&quot;</span>)<br>	<span class="hljs-keyword">for</span> &#123;<br>		<span class="hljs-keyword">var</span> key NodeMapKey<br>		<span class="hljs-keyword">var</span> value NodeMapValue<br>		<span class="hljs-keyword">if</span> !iterator.Next(&amp;key, &amp;value) &#123;<br>			<span class="hljs-keyword">break</span><br>		&#125;<br>		tbl.AddRow(key.NodeId, key.Type, value.Value1, value.Value2, value.Value3)<br>	&#125;<br>	tbl.Print()<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">package</span> ebpf_example<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;github.com/cilium/ebpf&quot;</span><br>	<span class="hljs-string">&quot;github.com/cilium/ebpf/rlimit&quot;</span><br>	<span class="hljs-string">&quot;testing&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestNodeMap_Insert</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>	<span class="hljs-keyword">if</span> err := rlimit.RemoveMemlock(); err != <span class="hljs-literal">nil</span> &#123;<br>		t.Fatal(err)<br>	&#125;<br>	m := NewNodeMap()<br>	e := m.InitMap()<br>	<span class="hljs-keyword">if</span> e != <span class="hljs-literal">nil</span> &#123;<br>		t.Fatal(e)<br>	&#125;<br>	<span class="hljs-keyword">type</span> fields <span class="hljs-keyword">struct</span> &#123;<br>		Map *ebpf.Map<br>	&#125;<br>	<span class="hljs-keyword">type</span> args <span class="hljs-keyword">struct</span> &#123;<br>		nodeId <span class="hljs-type">uint32</span><br>		typ    AuxType<br>		value1 <span class="hljs-type">uint32</span><br>		value2 <span class="hljs-type">uint32</span><br>		value3 <span class="hljs-type">uint64</span><br>	&#125;<br>	tests := []<span class="hljs-keyword">struct</span> &#123;<br>		name    <span class="hljs-type">string</span><br>		fields  fields<br>		args    args<br>		wantErr <span class="hljs-type">bool</span><br>	&#125;&#123;<br>		&#123;<br>			name: <span class="hljs-string">&quot;&quot;</span>,<br>			fields: fields&#123;<br>				Map: <span class="hljs-literal">nil</span>,<br>			&#125;,<br>			args: args&#123;<br>				nodeId: <span class="hljs-number">1</span>,<br>				typ:    MulticastDev,<br>				value1: <span class="hljs-number">2</span>,<br>				value2: <span class="hljs-number">3</span>,<br>				value3: <span class="hljs-number">4</span>,<br>			&#125;,<br>			wantErr: <span class="hljs-literal">false</span>,<br>		&#125;,<br>	&#125;<br>	<span class="hljs-keyword">for</span> _, tt := <span class="hljs-keyword">range</span> tests &#123;<br>		t.Run(tt.name, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>			err := m.Insert(tt.args.nodeId, tt.args.typ, tt.args.value1, tt.args.value2, tt.args.value3)<br>			<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>				t.Fatal(err)<br>			&#125;<br>		&#125;)<br>	&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">TestNodeMap_Dump</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>	m := NewNodeMap()<br>	e := m.InitMap()<br>	<span class="hljs-keyword">if</span> e != <span class="hljs-literal">nil</span> &#123;<br>		t.Fatal(e)<br>	&#125;<br>	<span class="hljs-keyword">type</span> fields <span class="hljs-keyword">struct</span> &#123;<br>		Map *ebpf.Map<br>	&#125;<br>	tests := []<span class="hljs-keyword">struct</span> &#123;<br>		name   <span class="hljs-type">string</span><br>		fields fields<br>	&#125;&#123;<br>		&#123;<br>			name:   <span class="hljs-string">&quot;&quot;</span>,<br>			fields: fields&#123;&#125;,<br>		&#125;,<br>	&#125;<br>	<span class="hljs-keyword">for</span> _, tt := <span class="hljs-keyword">range</span> tests &#123;<br>		t.Run(tt.name, <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(t *testing.T)</span></span> &#123;<br>			m.Dump()<br>		&#125;)<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div></div>
+      <div>https://weiqiangxu.github.io/2023/12/08/cni/eBPF工具库/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>xuweiqiang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>December 8, 2023</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>
