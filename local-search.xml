@@ -4,13 +4,50 @@
   
   
   <entry>
-    <title></title>
-    <link href="/2023/12/09/registry/%E5%AE%89%E8%A3%85bingokube-v1.4/"/>
-    <url>/2023/12/09/registry/%E5%AE%89%E8%A3%85bingokube-v1.4/</url>
+    <title>网络粘性</title>
+    <link href="/2024/02/22/network/%E7%BD%91%E7%BB%9C%E7%B2%98%E6%80%A7/"/>
+    <url>/2024/02/22/network/%E7%BD%91%E7%BB%9C%E7%B2%98%E6%80%A7/</url>
     
-    <content type="html"><![CDATA[<p>安装bingokube-v1.4.2<br>    single-node.tar.gz 安装包解压 &#x2F;bingokube&#x2F;single-node<br>    安装docker<br>        sh install-docker.sh<br>    离线安装(ip地址是节点管理网卡地址)<br>        sh install.sh 192.168.1.1 offline<br>    访问管理后台<br>        <a href="http://192.168.1.1:8989/">http://192.168.1.1:8989</a><br>    添加集群<br>    迁移集群<br>        系统配置 -&gt; 部署设置 -&gt; 迁移<br>            选集群和填写新kubeverse访问的ip （IP地址）<br>        <a href="http://10.16.203.134:29788/">http://10.16.203.134:29788/</a><br>        安装ingress-nginx<br>            hostnetwork + spec.ingressCLassName<br>        docker stop $(docker ps -aq)<br>            停止单机的etcd\nginx\registry等</p>]]></content>
+    <content type="html"><![CDATA[<h3 id="什么是网络粘性"><a href="#什么是网络粘性" class="headerlink" title="什么是网络粘性"></a>什么是网络粘性</h3>]]></content>
     
     
+    <categories>
+      
+      <category>kubernetes</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>kubernetes</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>http开启SSL</title>
+    <link href="/2024/02/22/network/%E5%BC%80http%E5%90%AFSSL/"/>
+    <url>/2024/02/22/network/%E5%BC%80http%E5%90%AFSSL/</url>
+    
+    <content type="html"><![CDATA[<h3 id="1-使用Gin搭建服务支持https访问"><a href="#1-使用Gin搭建服务支持https访问" class="headerlink" title="1.使用Gin搭建服务支持https访问"></a>1.使用Gin搭建服务支持https访问</h3><h3 id="2-证书生成和绑定"><a href="#2-证书生成和绑定" class="headerlink" title="2.证书生成和绑定"></a>2.证书生成和绑定</h3>]]></content>
+    
+    
+    <categories>
+      
+      <category>kubernetes</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>kubernetes</tag>
+      
+    </tags>
     
   </entry>
   
@@ -482,6 +519,31 @@
   
   
   <entry>
+    <title>安装nginx配置域名指向本机服务</title>
+    <link href="/2023/09/19/cni/%E5%AE%89%E8%A3%85nginx%E9%85%8D%E7%BD%AE%E5%9F%9F%E5%90%8D%E6%8C%87%E5%90%91%E6%9C%AC%E6%9C%BA%E6%9C%8D%E5%8A%A1/"/>
+    <url>/2023/09/19/cni/%E5%AE%89%E8%A3%85nginx%E9%85%8D%E7%BD%AE%E5%9F%9F%E5%90%8D%E6%8C%87%E5%90%91%E6%9C%AC%E6%9C%BA%E6%9C%8D%E5%8A%A1/</url>
+    
+    <content type="html"><![CDATA[<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker run --name nginx -itd --network=host \<br>        -v nginx.conf:/etc/nginx/conf.d/proxy.conf \<br>        nginx:1.25.1<br></code></pre></td></tr></table></figure><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs nginx.conf">client_body_buffer_size 2048m;   # 设置客户端请求的缓冲区大小<br>client_header_buffer_size 2048m; # 设置客户端请求头部的缓冲区大小<br>client_max_body_size 2048m;      # 设置客户端请求的最大缓冲区大小<br><br>server &#123;<br>    listen 80;<br>    server_name a.com;<br><br>    location / &#123;<br>        proxy_pass http://127.0.0.1:5000;<br>        proxy_set_header Host $host;<br>        proxy_set_header X-Real-IP $remote_addr;<br>        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;<br>        proxy_set_header X-Forwarded-Proto $scheme;<br>    &#125;<br>&#125;<br><br>server &#123;<br>    listen 80;<br>    server_name b.com;<br><br>    location / &#123;<br>        proxy_pass http://127.0.0.1:5100;<br>        proxy_set_header Host $host;<br>        proxy_set_header X-Real-IP $remote_addr;<br>        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;<br>        proxy_set_header X-Forwarded-Proto $scheme;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure><h3 id="启动服务指向5100端口"><a href="#启动服务指向5100端口" class="headerlink" title="启动服务指向5100端口"></a>启动服务指向5100端口</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker run -itd --name chartmuseum \<br>        --network=host \<br>        -e STORAGE=<span class="hljs-built_in">local</span> \<br>        -e STORAGE_LOCAL_ROOTDIR=/charts \<br>        -e PORT=5100 \<br>        chartmuseum:1.0<br></code></pre></td></tr></table></figure><h3 id="使用IP访问"><a href="#使用IP访问" class="headerlink" title="使用IP访问"></a>使用IP访问</h3><p><a href="http://b.com/">http://b.com</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>kubernetes</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>kubernetes</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>DNS服务配置有哪些</title>
     <link href="/2023/09/15/network/DNS%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE%E6%9C%89%E5%93%AA%E4%BA%9B/"/>
     <url>/2023/09/15/network/DNS%E6%9C%8D%E5%8A%A1%E9%85%8D%E7%BD%AE%E6%9C%89%E5%93%AA%E4%BA%9B/</url>
@@ -511,7 +573,7 @@
     <link href="/2023/09/14/network/%E4%BB%80%E4%B9%88%E6%98%AFDHCP/"/>
     <url>/2023/09/14/network/%E4%BB%80%E4%B9%88%E6%98%AFDHCP/</url>
     
-    <content type="html"><![CDATA[<h3 id="1-Linux的DHCP相关配置"><a href="#1-Linux的DHCP相关配置" class="headerlink" title="1.Linux的DHCP相关配置"></a>1.Linux的DHCP相关配置</h3><h3 id="2-如何分配静态IP"><a href="#2-如何分配静态IP" class="headerlink" title="2.如何分配静态IP"></a>2.如何分配静态IP</h3><p>DHCP（Dynamic Host Configuration Protocol）是一种网络协议，用于自动分配IP地址和其他网络配置参数给计算机设备。</p><p>静态IP地址是由管理员手动分配给设备的固定IP地址，不通过DHCP协议进行动态分配。</p><p>在Linux上，可以通过以下步骤配置静态IP地址：</p><ol><li><p>编辑网络配置文件：打开终端，并使用文本编辑器（如vi、nano等）编辑网络配置文件，例如：</p>  <figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">sudo vi <span class="hljs-regexp">/etc/</span>network/interfaces<br></code></pre></td></tr></table></figure></li><li><p>在配置文件中找到适当的接口（如eth0、enp0s3等），并将配置修改为静态IP地址信息，例如：</p>  <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">auto</span> eth0<br>iface eth0 inet static<br>address <span class="hljs-number">192.168.0.100</span><br>netmask <span class="hljs-number">255.255.255.0</span><br>gateway <span class="hljs-number">192.168.0.1</span><br>dns-nameservers <span class="hljs-number">8.8.8.8</span> <span class="hljs-number">8.8.4.4</span><br></code></pre></td></tr></table></figure><p>  这里的address是静态IP地址，netmask是子网掩码，gateway是网关IP地址，dns-nameservers是DNS服务器地址。</p></li><li><p>保存并关闭配置文件。</p></li><li><p>重新启动网络服务，以应用新的网络配置：</p>  <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">sudo systemctl restart networking</span><br></code></pre></td></tr></table></figure></li></ol><p>这样，你的Linux系统就会使用静态IP地址进行网络连接。</p><p>请注意，上述步骤适用于基于Debian的Linux发行版（如Ubuntu）。其他发行版可能有不同的网络配置方式，请参考相应的文档或手册进行配置。</p>]]></content>
+    <content type="html"><![CDATA[<h3 id="DHCP概念"><a href="#DHCP概念" class="headerlink" title="DHCP概念"></a>DHCP概念</h3><p>DHCP（Dynamic Host Configuration Protocol）是一种网络协议，用于自动分配IP地址和其他网络配置参数给计算机设备。静态IP地址是由管理员手动分配给设备的固定IP地址，不通过DHCP协议进行动态分配。</p><h3 id="静态IP"><a href="#静态IP" class="headerlink" title="静态IP"></a>静态IP</h3><h5 id="1-更新网卡配置文件"><a href="#1-更新网卡配置文件" class="headerlink" title="1.更新网卡配置文件"></a>1.更新网卡配置文件</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 系统信息</span><br>$ hostnamectl<br>        Virtualization: kvm<br>    Operating System: openEuler 22.03 (LTS-SP1)<br>    Kernel: Linux 5.10.0-136.12.0.86.oe2203sp1.x86_64<br>        Architecture: x86-64<br><br><span class="hljs-comment"># 网卡配置</span><br>vi /etc/sysconfig/network-scripts/ifcfg-ens8<br></code></pre></td></tr></table></figure><h4 id="2-网卡配置内容"><a href="#2-网卡配置内容" class="headerlink" title="2.网卡配置内容"></a>2.网卡配置内容</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">TYPE=Ethernet<br>PROXY_METHOD=none<br>BROWSER_ONLY=no<br>BOOTPROTO=static<br>DEFROUTE=no<br>IPV4_FAILURE_FATAL=no<br>NAME=enp8s0<br>DEVICE=enp8s0<br>ONBOOT=<span class="hljs-built_in">yes</span><br>IPADDR=192.168.1.7<br>NETMASK=255.255.255.0<br>GATEWAY=192.168.1.1<br></code></pre></td></tr></table></figure><h4 id="3-重启网络服务"><a href="#3-重启网络服务" class="headerlink" title="3.重启网络服务"></a>3.重启网络服务</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl restart network<br></code></pre></td></tr></table></figure>]]></content>
     
     
     <categories>
