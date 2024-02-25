@@ -216,6 +216,72 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/12/08/redis/Redis%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Redis%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" target="_self">
+        <div>
+          缓存一致性并发如何带来缓存一致性的问题123456同时发起A|B两个请求A更新值为1并记录到缓存B更新值为2并记录到缓存正确的情况：数据库和缓存都为2实际的情况：缓存先被B更新为2，然后又被A更新为1  策略1234写：更新数据库后删除缓存  或  先删除缓存再更新数据库读：未命中缓存就更新缓存  先删除缓存再更新数据库异常情形1234A先删除缓存B读取值为20B更新缓存为20A更新数据库为21
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/redis/Redis%E9%9B%86%E7%BE%A4%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Redis%E9%9B%86%E7%BE%A4%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" target="_self">
+        <div>
+          集群分布式锁及实现方案Java全栈知识体系之分布式系统InfoQ Redis 锁实现需要支持123互斥超时释放高性能  分布式锁干嘛的 控制多个进程对资源的访问    Redis单机SETNX123SET lock_resource_id lock_value NX EX 10 #加锁do somethingDEL lock_resource_id #释放  Redis单机SETNX的缺点12锁提
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/12/08/redis/Redis%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1/" target="_self">
           
         </a>
@@ -456,72 +522,6 @@
       <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Hash/" target="_self">
         <div>
           Redis 哈希(hash) 获取哈希表之中所有的字段和值  查看哈希表之中指定的Key是否存在  删除哈希表字段Key  哈希表的指定Key的指定字段field设置增量increment  获取哈希表中所有字段  设置哈希表之中Key的指定的字段field值
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/infoq/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%9A%84%E8%89%BA%E6%9C%AF/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/infoq/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%9A%84%E8%89%BA%E6%9C%AF/" target="_self">
-        <div>
-          如何优雅的写单元测试 为什么单元测试不止是验证，而是可以提升代码质量必备技能
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/etcd/docker%E5%90%AF%E5%8A%A8etcd2/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/etcd/docker%E5%90%AF%E5%8A%A8etcd2/" target="_self">
-        <div>
-          
         </div>
       </a>
 

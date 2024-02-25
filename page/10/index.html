@@ -216,6 +216,72 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/12/08/redis/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%90%86%E8%A7%A3%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%90%86%E8%A7%A3%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" target="_self">
+        <div>
+          数据结构角度解释各种数据类型差别各种数据类型用了哪些数据结构123456789string 简单动态字符串 SDS(simple dynamis string)zset 跳表 + listpackhash 哈希表set 整数集合 + 哈希表list quicklist   新旧版本(Redis 3.0 和 Redis 7.0最新)涉及哪9种数据结构12345678SDS双向链表压缩列表ziplis
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/redis/%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E5%92%8C%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E5%92%8C%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0/" target="_self">
+        <div>
+          Redis的过期删除和内存淘汰过期字典123哈希表struct&#123; key,expired_timestamp &#125;key存在过期字典之中且 system_timestamp &gt; expired_timestamp 表示已经过期  过期删除策略12345定时(设置key过期就针对这个key创建定时事件，CPU开销大但内存删除很及时)惰性(key被访问时如果过期了就删除)定期(
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/12/08/redis/%E6%8C%81%E4%B9%85%E5%8C%96RDB%E5%BF%AB%E7%85%A7/" target="_self">
           
         </a>
@@ -456,72 +522,6 @@
       <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Redis%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%87%BB%E7%A9%BF%E5%92%8C%E7%A9%BF%E9%80%8F/" target="_self">
         <div>
           Redis缓存缓存雪崩 数据大量过期，大量请求直接访问数据库造成数据库宕机  12大量数据同时过期Redis故障宕机  解决方案123双Key策略后台更新缓存过期时间均匀设置   缓存击穿 热点数据过期高并发请求冲垮数据库  缓存穿透 数据库没有数据缓存之中也没有，那么所有的请求都会打到数据库  12缓存空值或默认值布隆过滤器快速判断数据是否存在，避免通过查询数据库来判断数据是否存在
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/redis/Redis%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Redis%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7/" target="_self">
-        <div>
-          缓存一致性并发如何带来缓存一致性的问题123456同时发起A|B两个请求A更新值为1并记录到缓存B更新值为2并记录到缓存正确的情况：数据库和缓存都为2实际的情况：缓存先被B更新为2，然后又被A更新为1  策略1234写：更新数据库后删除缓存  或  先删除缓存再更新数据库读：未命中缓存就更新缓存  先删除缓存再更新数据库异常情形1234A先删除缓存B读取值为20B更新缓存为20A更新数据库为21
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/redis/Redis%E9%9B%86%E7%BE%A4%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Redis%E9%9B%86%E7%BE%A4%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" target="_self">
-        <div>
-          集群分布式锁及实现方案Java全栈知识体系之分布式系统InfoQ Redis 锁实现需要支持123互斥超时释放高性能  分布式锁干嘛的 控制多个进程对资源的访问    Redis单机SETNX123SET lock_resource_id lock_value NX EX 10 #加锁do somethingDEL lock_resource_id #释放  Redis单机SETNX的缺点12锁提
         </div>
       </a>
 
