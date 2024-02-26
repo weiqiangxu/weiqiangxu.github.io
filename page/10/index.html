@@ -216,39 +216,6 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/12/08/redis/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%90%86%E8%A7%A3%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%90%86%E8%A7%A3%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" target="_self">
-        <div>
-          数据结构角度解释各种数据类型差别各种数据类型用了哪些数据结构123456789string 简单动态字符串 SDS(simple dynamis string)zset 跳表 + listpackhash 哈希表set 整数集合 + 哈希表list quicklist   新旧版本(Redis 3.0 和 Redis 7.0最新)涉及哪9种数据结构12345678SDS双向链表压缩列表ziplis
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
         <a href="/2023/12/08/redis/%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E5%92%8C%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0/" target="_self">
           
         </a>
@@ -348,39 +315,6 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/12/08/redis/README/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/README/" target="_self">
-        <div>
-          Redis_Getting_Started_GuideRedis入门指南 优秀站点Java全栈知识体系 小林coding 熔断&#x2F;降级&#x2F;限流
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
         <a href="/2023/12/08/redis/List/" target="_self">
           
         </a>
@@ -414,15 +348,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/12/08/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85/" target="_self">
+        <a href="/2023/12/08/redis/Blogs/" target="_self">
           
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Blogs/" target="_self">
         <div>
-          发布&#x2F;订阅 client订阅频道chat  server发布消息到频道chat  查看订阅和发布系统状态 [获取活跃频道组成的列表]
+          使用Redis搭建博客 存储文章内容k-v形式存储字符串(序列化内容)  文章访问量自增 INCRBY  文章内容访问或更改属性麻烦更换为散列 HSET key field value  获取文章列表使用列表类型list LPUSH RPUSH LPOP RPOP  文章的标签tags存储使用集合类型 SCARD key  文章按照访问量排序 - 有序集合 ZCOUNT key min max
         </div>
       </a>
 
@@ -447,15 +381,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/12/08/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
+        <a href="/2023/12/08/redis/Hash/" target="_self">
           
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Hash/" target="_self">
         <div>
-          Redis事务事务是批量执行脚本，Redis语句是原子性的(事物不可分割，要么都发生要么都不发生)Redis事务不会因为批量脚本之中的某一个执行失败而回滚，也不会造成后续的指令不执行常用指令123MULTIEXEC  12345DISCARDUNWATCHWATCH  所以Watch怎么用，监控事务这篇文章写得不错 该机制参考了 CAS（比较与交换，Compare And Swap） 123456
+          Redis 哈希(hash) 获取哈希表之中所有的字段和值  查看哈希表之中指定的Key是否存在  删除哈希表字段Key  哈希表的指定Key的指定字段field设置增量increment  获取哈希表中所有字段  设置哈希表之中Key的指定的字段field值
         </div>
       </a>
 
@@ -480,15 +414,15 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/12/08/redis/Redis%E7%9A%84%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD%E5%92%8C%E6%81%A2%E5%A4%8D/" target="_self">
+        <a href="/2023/12/08/infoq/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%9A%84%E8%89%BA%E6%9C%AF/" target="_self">
           
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Redis%E7%9A%84%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD%E5%92%8C%E6%81%A2%E5%A4%8D/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/infoq/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%9A%84%E8%89%BA%E6%9C%AF/" target="_self">
         <div>
-          数据备份和恢复SAVE \ BGSAVE1命令将在 redis 安装目录中创建dump.rdb文件  CONFIG GET dir1输出的 redis 安装目录为 /usr/local/redis/bin (example)  恢复数据1备份文件dump.rdb移动到安装目录启动服务即可
+          如何优雅的写单元测试 为什么单元测试不止是验证，而是可以提升代码质量必备技能
         </div>
       </a>
 
@@ -513,15 +447,81 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2023/12/08/redis/Redis%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%87%BB%E7%A9%BF%E5%92%8C%E7%A9%BF%E9%80%8F/" target="_self">
+        <a href="/2023/12/08/etcd/docker%E5%90%AF%E5%8A%A8etcd2/" target="_self">
           
         </a>
       </h1>
 
       
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Redis%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%87%BB%E7%A9%BF%E5%92%8C%E7%A9%BF%E9%80%8F/" target="_self">
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/etcd/docker%E5%90%AF%E5%8A%A8etcd2/" target="_self">
         <div>
-          Redis缓存缓存雪崩 数据大量过期，大量请求直接访问数据库造成数据库宕机  12大量数据同时过期Redis故障宕机  解决方案123双Key策略后台更新缓存过期时间均匀设置   缓存击穿 热点数据过期高并发请求冲垮数据库  缓存穿透 数据库没有数据缓存之中也没有，那么所有的请求都会打到数据库  12缓存空值或默认值布隆过滤器快速判断数据是否存在，避免通过查询数据库来判断数据是否存在
+          
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/etcd/docker%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6%E5%BC%80%E5%90%AFssl%E9%AA%8C%E8%AF%81/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/etcd/docker%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6%E5%BC%80%E5%90%AFssl%E9%AA%8C%E8%AF%81/" target="_self">
+        <div>
+          docker生成证书开启ssl验证1. docker生成证书2. 使用生成的证书和密钥启动客户端3. 使用证书和密钥连接服务端1234567$ docker run -it -v $(pwd)/etcd:/root centos:centos7 sh$ yum install wget$ wget https://github.com/cloudflare/cfssl/releases/downl
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/docker/%E5%A6%82%E4%BD%95%E6%8B%89%E5%8F%96%E5%A4%9A%E6%9E%B6%E6%9E%84%E9%95%9C%E5%83%8F%E5%B9%B6%E5%AD%98%E5%82%A8%E5%88%B0%E7%A7%81%E6%9C%89%E5%BA%93/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/docker/%E5%A6%82%E4%BD%95%E6%8B%89%E5%8F%96%E5%A4%9A%E6%9E%B6%E6%9E%84%E9%95%9C%E5%83%8F%E5%B9%B6%E5%AD%98%E5%82%A8%E5%88%B0%E7%A7%81%E6%9C%89%E5%BA%93/" target="_self">
+        <div>
+          如何存储多架构镜像到私有库123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051# 多架构镜像# quay.io/coreos/etcd:v3.5.0$ docker pull --platform=linux/amd64 quay.io/coreos/etcd:v3
         </div>
       </a>
 
@@ -544,7 +544,7 @@
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/9/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/#board">8</a><a class="page-number" href="/page/9/#board">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/#board">11</a><a class="page-number" href="/page/12/#board">12</a><a class="page-number" href="/page/13/#board">13</a><a class="extend next" rel="next" href="/page/11/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/9/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/#board">8</a><a class="page-number" href="/page/9/#board">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/#board">11</a><a class="page-number" href="/page/12/#board">12</a><a class="extend next" rel="next" href="/page/11/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 
