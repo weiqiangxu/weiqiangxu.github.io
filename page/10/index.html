@@ -216,6 +216,237 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/2023/12/08/redis/%E5%88%86%E7%89%87RedisCluster%E5%8E%9F%E7%90%86/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E5%88%86%E7%89%87RedisCluster%E5%8E%9F%E7%90%86/" target="_self">
+        <div>
+          集群分片 主从只是扩展了读，但是写和存储能力并未得到扩展  关键模块 哈希槽(Hash Slot)(数量是2^14&#x3D;16384)，Cluster每个节点负责一部分哈希槽  Keys hash tags 将相关Key分配到相同的hash slot  Cluster nodes属性 123redis-cli cluster nodesnode id, address:port, flags,
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/redis/cluster/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/cluster/" target="_self">
+        <div>
+          目录 简介 如何安装使用（linux、docker、k8s） 底层原理 高可用、高性能优化配置  go的redis客户端需要连接池吗，不是说redis是单线程的？参考博客深入学习Redis之Redis Cluster Full_stack_knowledge_systempdai.tech
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/redis/%E5%88%86%E7%89%87RedisCluster%E6%90%AD%E5%BB%BA/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E5%88%86%E7%89%87RedisCluster%E6%90%AD%E5%BB%BA/" target="_self">
+        <div>
+          Redis集群模式搭建 redis-conf redis-cli –cluster create  Redis-conf配置123456789101112131415161718192021222324252627282930313233343536#注释掉 bind 项，默认监听所有网卡 70 #bind 127.0.0.1#关闭保护模式 89 protected-mode no#redis默认
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/redis/%E5%88%86%E7%89%87%E6%8A%80%E6%9C%AF/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E5%88%86%E7%89%87%E6%8A%80%E6%9C%AF/" target="_self">
+        <div>
+          redis 分片技术123最多1000节点（集群节点间）使用异步复制   Keys hash tags， 用来将多个(相关的)key分配到相同的hash slot中，Redis Cluster中实现multi-key操作的基础每个节点维护着集群内其他节点的以下信息 redis-cli cluster nodes   node id, address:port, flags, last ping s
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/redis/%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8/" target="_self">
+        <div>
+          Redis入门指南1234567891011121314151617181920212223242526272829303132333435369 种数据类型BitMap 二值状态统计的场景Stream 消息队列HyperLogLog 海量数据基数统计的场景GEO 地理位置信息HSET key field valueKEYSLPUSH LPOPRPUSH RPOPLLEN KEYSADD KEY
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/redis/%E6%8C%81%E4%B9%85%E5%8C%96AOF%E6%97%A5%E5%BF%97/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E6%8C%81%E4%B9%85%E5%8C%96AOF%E6%97%A5%E5%BF%97/" target="_self">
+        <div>
+          AOF(Append Only File)日志原理1执行写命令完成后会记录日志到硬盘  如何开启1234# redis.confappendonly yes                    //是否开启AOF持久化 appendfilename &quot;appendonly.aof&quot;   //AOF持久化文件名  为啥不在写命令执行前记录日志而是写命令执行之后呢12不阻塞写操作
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/redis/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%90%86%E8%A7%A3%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%90%86%E8%A7%A3%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" target="_self">
+        <div>
+          数据结构角度解释各种数据类型差别各种数据类型用了哪些数据结构123456789string 简单动态字符串 SDS(simple dynamis string)zset 跳表 + listpackhash 哈希表set 整数集合 + 哈希表list quicklist   新旧版本(Redis 3.0 和 Redis 7.0最新)涉及哪9种数据结构12345678SDS双向链表压缩列表ziplis
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/2023/12/08/redis/%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E5%92%8C%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0/" target="_self">
           
         </a>
@@ -225,6 +456,39 @@
       <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E5%92%8C%E5%86%85%E5%AD%98%E6%B7%98%E6%B1%B0/" target="_self">
         <div>
           Redis的过期删除和内存淘汰过期字典123哈希表struct&#123; key,expired_timestamp &#125;key存在过期字典之中且 system_timestamp &gt; expired_timestamp 表示已经过期  过期删除策略12345定时(设置key过期就针对这个key创建定时事件，CPU开销大但内存删除很及时)惰性(key被访问时如果过期了就删除)定期(
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-12-08 20:17" pubdate>
+              2023-12-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/12/08/redis/%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/" target="_self">
+          
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/" target="_self">
+        <div>
+          哨兵机制 Redis Sendtinel 哨兵的核心功能是主节点的自动故障转移  哨兵机制原理 哨兵之间集群建立、哨兵与主从库连接建立  123哨兵实例之间可以相互发现，要归功于 Redis 提供的 pub/sub 机制，也就是发布 / 订阅机制，他们共同订阅Redis的同一个频道，获取对方的IP和端口号从而建立网络连接每个哨兵发送INFO给主库，收到从库列表，进而与从库建立连接   哨兵之间通讯
         </div>
       </a>
 
@@ -276,275 +540,11 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/redis/Key/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Key/" target="_self">
-        <div>
-          Reids 键 Key 删除Key  检查Key是否存在  设置Key过期时间  查找所有符合给定模式( pattern)的Key  获取Key的过期时间(ms&#x2F;s)  修改Key的名称  返回Key存储的值的类型
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/redis/List/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/List/" target="_self">
-        <div>
-          List 列表 往Key列表PUSH指定元素(头部\尾部)  移出并获取列表Key的第一个元素\最后一个元素  获取列表指定返回的元素  获取列表指定索引的元素
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/redis/Blogs/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Blogs/" target="_self">
-        <div>
-          使用Redis搭建博客 存储文章内容k-v形式存储字符串(序列化内容)  文章访问量自增 INCRBY  文章内容访问或更改属性麻烦更换为散列 HSET key field value  获取文章列表使用列表类型list LPUSH RPUSH LPOP RPOP  文章的标签tags存储使用集合类型 SCARD key  文章按照访问量排序 - 有序集合 ZCOUNT key min max
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/redis/Hash/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/redis/Hash/" target="_self">
-        <div>
-          Redis 哈希(hash) 获取哈希表之中所有的字段和值  查看哈希表之中指定的Key是否存在  删除哈希表字段Key  哈希表的指定Key的指定字段field设置增量increment  获取哈希表中所有字段  设置哈希表之中Key的指定的字段field值
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/infoq/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%9A%84%E8%89%BA%E6%9C%AF/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/infoq/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E7%9A%84%E8%89%BA%E6%9C%AF/" target="_self">
-        <div>
-          如何优雅的写单元测试 为什么单元测试不止是验证，而是可以提升代码质量必备技能
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/etcd/docker%E5%90%AF%E5%8A%A8etcd2/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/etcd/docker%E5%90%AF%E5%8A%A8etcd2/" target="_self">
-        <div>
-          
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/etcd/docker%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6%E5%BC%80%E5%90%AFssl%E9%AA%8C%E8%AF%81/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/etcd/docker%E7%94%9F%E6%88%90%E8%AF%81%E4%B9%A6%E5%BC%80%E5%90%AFssl%E9%AA%8C%E8%AF%81/" target="_self">
-        <div>
-          docker生成证书开启ssl验证1. docker生成证书2. 使用生成的证书和密钥启动客户端3. 使用证书和密钥连接服务端1234567$ docker run -it -v $(pwd)/etcd:/root centos:centos7 sh$ yum install wget$ wget https://github.com/cloudflare/cfssl/releases/downl
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/12/08/docker/%E5%A6%82%E4%BD%95%E6%8B%89%E5%8F%96%E5%A4%9A%E6%9E%B6%E6%9E%84%E9%95%9C%E5%83%8F%E5%B9%B6%E5%AD%98%E5%82%A8%E5%88%B0%E7%A7%81%E6%9C%89%E5%BA%93/" target="_self">
-          
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt index-excerpt__noimg" href="/2023/12/08/docker/%E5%A6%82%E4%BD%95%E6%8B%89%E5%8F%96%E5%A4%9A%E6%9E%B6%E6%9E%84%E9%95%9C%E5%83%8F%E5%B9%B6%E5%AD%98%E5%82%A8%E5%88%B0%E7%A7%81%E6%9C%89%E5%BA%93/" target="_self">
-        <div>
-          如何存储多架构镜像到私有库123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051# 多架构镜像# quay.io/coreos/etcd:v3.5.0$ docker pull --platform=linux/amd64 quay.io/coreos/etcd:v3
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-12-08 20:17" pubdate>
-              2023-12-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/9/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/#board">8</a><a class="page-number" href="/page/9/#board">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/#board">11</a><a class="page-number" href="/page/12/#board">12</a><a class="extend next" rel="next" href="/page/11/#board"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/page/9/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/#board">8</a><a class="page-number" href="/page/9/#board">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/#board">11</a><a class="page-number" href="/page/12/#board">12</a><a class="page-number" href="/page/13/#board">13</a><a class="extend next" rel="next" href="/page/11/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 
