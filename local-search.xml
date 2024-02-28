@@ -4,6 +4,19 @@
   
   
   <entry>
+    <title></title>
+    <link href="/2024/02/27/redis/Redis%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/"/>
+    <url>/2024/02/27/redis/Redis%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/</url>
+    
+    <content type="html"><![CDATA[<h3 id="Redis的常见问题"><a href="#Redis的常见问题" class="headerlink" title="Redis的常见问题"></a>Redis的常见问题</h3><ol><li>Redis的数据类型有哪几个分别用来干嘛</li><li></li></ol>]]></content>
+    
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>网络粘性</title>
     <link href="/2024/02/22/network/%E7%BD%91%E7%BB%9C%E7%B2%98%E6%80%A7/"/>
     <url>/2024/02/22/network/%E7%BD%91%E7%BB%9C%E7%B2%98%E6%80%A7/</url>
