@@ -4,19 +4,6 @@
   
   
   <entry>
-    <title></title>
-    <link href="/2024/02/27/redis/Redis%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/"/>
-    <url>/2024/02/27/redis/Redis%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98/</url>
-    
-    <content type="html"><![CDATA[<h3 id="Redis的常见问题"><a href="#Redis的常见问题" class="headerlink" title="Redis的常见问题"></a>Redis的常见问题</h3><ol><li>Redis的数据类型有哪几个分别用来干嘛</li><li></li></ol>]]></content>
-    
-    
-    
-  </entry>
-  
-  
-  
-  <entry>
     <title>配置Nginx域名指向不同的服务</title>
     <link href="/2024/01/19/cni/%E9%85%8D%E7%BD%AENginx%E5%9F%9F%E5%90%8D%E6%8C%87%E5%90%91%E4%B8%8D%E5%90%8C%E7%9A%84%E6%9C%8D%E5%8A%A1/"/>
     <url>/2024/01/19/cni/%E9%85%8D%E7%BD%AENginx%E5%9F%9F%E5%90%8D%E6%8C%87%E5%90%91%E4%B8%8D%E5%90%8C%E7%9A%84%E6%9C%8D%E5%8A%A1/</url>
@@ -36,19 +23,6 @@
       <tag>docker</tag>
       
     </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title></title>
-    <link href="/2023/12/08/redis/%E6%8C%81%E4%B9%85%E5%8C%96AOF%E6%97%A5%E5%BF%97/"/>
-    <url>/2023/12/08/redis/%E6%8C%81%E4%B9%85%E5%8C%96AOF%E6%97%A5%E5%BF%97/</url>
-    
-    <content type="html"><![CDATA[<h3 id="AOF-Append-Only-File-日志"><a href="#AOF-Append-Only-File-日志" class="headerlink" title="AOF(Append Only File)日志"></a>AOF(Append Only File)日志</h3><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">执行写命令完成后会记录日志到硬盘<br></code></pre></td></tr></table></figure><h3 id="如何开启"><a href="#如何开启" class="headerlink" title="如何开启"></a>如何开启</h3><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-comment"># redis.conf</span><br><br>appendonly yes                    <span class="hljs-regexp">//</span>是否开启AOF持久化 <br>appendfilename <span class="hljs-string">&quot;appendonly.aof&quot;</span>   <span class="hljs-regexp">//</span>AOF持久化文件名<br></code></pre></td></tr></table></figure><h3 id="为啥不在写命令执行前记录日志而是写命令执行之后呢"><a href="#为啥不在写命令执行前记录日志而是写命令执行之后呢" class="headerlink" title="为啥不在写命令执行前记录日志而是写命令执行之后呢"></a>为啥不在写命令执行前记录日志而是写命令执行之后呢</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs">不阻塞写操作<br>检查开销<br></code></pre></td></tr></table></figure><h3 id="在写命令执行后记录日志有什么风险呢"><a href="#在写命令执行后记录日志有什么风险呢" class="headerlink" title="在写命令执行后记录日志有什么风险呢"></a>在写命令执行后记录日志有什么风险呢</h3><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs scss">丢失风险<br>主进程(执行命令\写日志) 阻塞 <span class="hljs-selector-attr">[下一个]</span> 命令<br></code></pre></td></tr></table></figure><h3 id="对风险消除的措施-写回硬盘策略变更-redis-conf-appendfsync"><a href="#对风险消除的措施-写回硬盘策略变更-redis-conf-appendfsync" class="headerlink" title="对风险消除的措施 - 写回硬盘策略变更 redis.conf.appendfsync"></a>对风险消除的措施 - 写回硬盘策略变更 redis.conf.appendfsync</h3><figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs scss">Always   同步写回<span class="hljs-selector-attr">[最不可能丢数据]</span><br>Everysec 每秒写回来<span class="hljs-selector-attr">[可能丢失1s数据]</span><br>No       操作系统控制写回<span class="hljs-selector-attr">[性能最好]</span><span class="hljs-selector-attr">[数据丢失数量可能会很多]</span><br></code></pre></td></tr></table></figure><h3 id="AOF重写机制-应对AOF日志文件增长变大的问题"><a href="#AOF重写机制-应对AOF日志文件增长变大的问题" class="headerlink" title="AOF重写机制(应对AOF日志文件增长变大的问题)"></a>AOF重写机制(应对AOF日志文件增长变大的问题)</h3><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs css">超过阙值<span class="hljs-number">64</span>M，最新的 <span class="hljs-selector-attr">[键值对]</span> 状态，一条命令记录，写完了文件覆盖形式更新AOF日志<br><br>后台子进程 bgrewriteaof 来完成避免阻塞主进程<br></code></pre></td></tr></table></figure>]]></content>
-    
-    
     
   </entry>
   
@@ -335,6 +309,56 @@
     <tags>
       
       <tag>flannel</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>chartmuseum</title>
+    <link href="/2023/07/05/registry/chartmuseum/"/>
+    <url>/2023/07/05/registry/chartmuseum/</url>
+    
+    <content type="html"><![CDATA[<h3 id="1-docker启动单机的chart仓库服务"><a href="#1-docker启动单机的chart仓库服务" class="headerlink" title="1.docker启动单机的chart仓库服务"></a>1.docker启动单机的chart仓库服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker run --name=chartmuseum --restart=always -it -d \<br>  -p 8080:8080 \<br>  -v ~/charts:/charts \<br>  -e STORAGE=<span class="hljs-built_in">local</span> \<br>  -e STORAGE_LOCAL_ROOTDIR=/charts \<br>  chartmuseum/chartmuseum:v0.12.0<br></code></pre></td></tr></table></figure><h3 id="2-使用helm工具添加chart仓库到本地"><a href="#2-使用helm工具添加chart仓库到本地" class="headerlink" title="2.使用helm工具添加chart仓库到本地"></a>2.使用helm工具添加chart仓库到本地</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 添加chart库</span><br>$ helm repo add chartrepo http://localhost:8080<br><br>$ helm repo list<br>NAME            URL<br>chartrepo       http://localhost:8080<br><br><span class="hljs-comment"># 我们创建并打包一个新的chart</span><br>$ helm create <span class="hljs-built_in">test</span><br>Creating <span class="hljs-built_in">test</span><br><br>$ helm package <span class="hljs-built_in">test</span><br><br><span class="hljs-comment"># 将生成的tgz文件放到chartmuseum的文件夹下</span><br>$ <span class="hljs-built_in">mv</span> test-0.1.0.tgz ~/charts/<br><br><span class="hljs-comment"># 然后helm运行helm repo update更新，并搜索</span><br>$ helm repo update<br><br>$ helm search repo <span class="hljs-built_in">test</span><br>NAME            CHART VERSION   APP VERSION     DESCRIPTION<br>chartrepo/test  0.1.0           1.16.0          A Helm chart<br><br>$ helm show chart chartrepo/test<br>apiVersion: v2<br>appVersion: 1.16.0<br>description: A Helm chart <span class="hljs-keyword">for</span> Kubernetes<br>name: <span class="hljs-built_in">test</span><br><span class="hljs-built_in">type</span>: application<br>version: 0.1.0<br></code></pre></td></tr></table></figure><h3 id="3-查看chart仓库的helm包有哪些"><a href="#3-查看chart仓库的helm包有哪些" class="headerlink" title="3. 查看chart仓库的helm包有哪些"></a>3. 查看chart仓库的helm包有哪些</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 安装helm push 插件</span><br>$ helm plugin install https://github.com/chartmuseum/helm-push.git<br><br><span class="hljs-comment"># helm push命令将chart发布到chartmuseum上</span><br>$ helm push test-0.1.0.tgz chartrepo<br><br><span class="hljs-comment"># 更新helm repo，搜索刚刚上传的chart。</span><br>$ helm repo upgrade<br><br>$ helm search repo chartrepo<br>NAME                  CHART   VERSION  <br>chartmuseum/test      0.1.0   1.16.0     <br></code></pre></td></tr></table></figure><h3 id="4-API接口"><a href="#4-API接口" class="headerlink" title="4.API接口"></a>4.API接口</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查询chart</span><br>GET <span class="hljs-variable">$&#123;http&#125;</span>/api/charts<br><br><span class="hljs-comment"># 下载chart</span><br>GET <span class="hljs-variable">$&#123;http&#125;</span>/charts/<span class="hljs-variable">$&#123;chart-name&#125;</span>.tgz<br><br><span class="hljs-comment"># 上传chart</span><br>POST <span class="hljs-variable">$&#123;http&#125;</span>/api/charts <br>&#123;chart:<span class="hljs-variable">$&#123;local_path/chart-name&#125;</span>.tgz&#125;<br></code></pre></td></tr></table></figure><blockquote><p>手动拷贝chart包到<code>/charts</code>目录，charts仓库路径<code>STORAGE_LOCAL_ROOTDIR</code>有一个<code>index-cache.yaml</code>必须删除才会看到完整的chart包列表</p></blockquote>]]></content>
+    
+    
+    <categories>
+      
+      <category>kubernetes</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>chartmuseum</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>registry</title>
+    <link href="/2023/07/05/registry/registry/"/>
+    <url>/2023/07/05/registry/registry/</url>
+    
+    <content type="html"><![CDATA[<h3 id="1-docker单机启动镜像服务"><a href="#1-docker单机启动镜像服务" class="headerlink" title="1.docker单机启动镜像服务"></a>1.docker单机启动镜像服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ docker run -d \<br>  -p 5005:5000 --restart=always \<br>  --name registry registry:latest<br></code></pre></td></tr></table></figure><h3 id="2-启动以后访问服务"><a href="#2-启动以后访问服务" class="headerlink" title="2.启动以后访问服务"></a>2.启动以后访问服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker pull nginx:alpine<br><br>docker tag nginx:alpine 127.0.0.1:5005/test/mynginx:v1<br><br><span class="hljs-comment"># 推送镜像给单机镜像仓库</span><br>docker push 127.0.0.1:5005/test/mynginx:v1<br><br><span class="hljs-comment"># 访问registry服务</span><br>curl http://localhost:5005/v2/_catalog<br><br>&#123;<br>  <span class="hljs-string">&quot;repositories&quot;</span>: [<br>    <span class="hljs-string">&quot;test/mynginx&quot;</span><br>  ]<br>&#125;<br></code></pre></td></tr></table></figure><h3 id="3-镜像拉取"><a href="#3-镜像拉取" class="headerlink" title="3.镜像拉取"></a>3.镜像拉取</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 其他节点拉取镜像</span><br>docker pull x.x.x.x:5005/test/mynginx:v1<br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    <categories>
+      
+      <category>kubernetes</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>registry</tag>
       
     </tags>
     
