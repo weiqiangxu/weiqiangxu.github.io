@@ -16,15 +16,15 @@
   <meta name="author" content="xuweiqiang">
   <meta name="keywords" content="">
   
-    <meta name="description" content="redis 分片技术123最多1000节点（集群节点间）使用异步复制   Keys hash tags， 用来将多个(相关的)key分配到相同的hash slot中，Redis Cluster中实现multi-key操作的基础每个节点维护着集群内其他节点的以下信息 redis-cli cluster nodes   node id, address:port, flags, last ping s">
+    <meta name="description" content="redis 分片技术123最多1000节点集群节点间使用异步复制   Keys hash tags， 用来将多个(相关的)key分配到相同的hash slot中，Redis Cluster中实现multi-key操作的基础每个节点维护着集群内其他节点的以下信息 redis-cli cluster nodes   node id, address:port, flags, last ping sen">
 <meta property="og:type" content="article">
 <meta property="og:title" content="xuweiqiang&#39;s Notebook">
 <meta property="og:url" content="https://weiqiangxu.github.io/2023/12/08/redis/%E5%88%86%E7%89%87%E6%8A%80%E6%9C%AF/index.html">
 <meta property="og:site_name" content="xuweiqiang&#39;s Notebook">
-<meta property="og:description" content="redis 分片技术123最多1000节点（集群节点间）使用异步复制   Keys hash tags， 用来将多个(相关的)key分配到相同的hash slot中，Redis Cluster中实现multi-key操作的基础每个节点维护着集群内其他节点的以下信息 redis-cli cluster nodes   node id, address:port, flags, last ping s">
+<meta property="og:description" content="redis 分片技术123最多1000节点集群节点间使用异步复制   Keys hash tags， 用来将多个(相关的)key分配到相同的hash slot中，Redis Cluster中实现multi-key操作的基础每个节点维护着集群内其他节点的以下信息 redis-cli cluster nodes   node id, address:port, flags, last ping sen">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-08T12:17:57.952Z">
-<meta property="article:modified_time" content="2024-03-01T09:13:57.847Z">
+<meta property="article:modified_time" content="2024-03-01T09:15:32.503Z">
 <meta property="article:author" content="xuweiqiang">
 <meta name="twitter:card" content="summary_large_image">
   
@@ -249,7 +249,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="redis-分片技术"><a href="#redis-分片技术" class="headerlink" title="redis 分片技术"></a>redis 分片技术</h1><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs">最多1000节点<br><br>（集群节点间）使用异步复制<br></code></pre></td></tr></table></figure>
+                <h1 id="redis-分片技术"><a href="#redis-分片技术" class="headerlink" title="redis 分片技术"></a>redis 分片技术</h1><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs">最多1000节点<br><br>集群节点间使用异步复制<br></code></pre></td></tr></table></figure>
 
 
 <h3 id="Keys-hash-tags，-用来将多个-相关的-key分配到相同的hash-slot中，Redis-Cluster中实现multi-key操作的基础"><a href="#Keys-hash-tags，-用来将多个-相关的-key分配到相同的hash-slot中，Redis-Cluster中实现multi-key操作的基础" class="headerlink" title="Keys hash tags， 用来将多个(相关的)key分配到相同的hash slot中，Redis Cluster中实现multi-key操作的基础"></a>Keys hash tags， 用来将多个(相关的)key分配到相同的hash slot中，Redis Cluster中实现multi-key操作的基础</h3><h3 id="每个节点维护着集群内其他节点的以下信息"><a href="#每个节点维护着集群内其他节点的以下信息" class="headerlink" title="每个节点维护着集群内其他节点的以下信息"></a>每个节点维护着集群内其他节点的以下信息</h3><blockquote>
@@ -258,7 +258,7 @@
 <blockquote>
 <p>node id, address:port, flags, last ping sent, last pong received, configuration epoch, link state, slots</p>
 </blockquote>
-<h3 id="Cluster总线"><a href="#Cluster总线" class="headerlink" title="Cluster总线"></a>Cluster总线</h3><figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs excel">每个Redis Cluster节点有一个额外的TCP端口用来接受其他节点的连接<br><br><br>该端口往往是client连接的tcp端口+<span class="hljs-number">10000</span>（端口<span class="hljs-number">6379</span>监听客户端连接，那么它的集群总线端口<span class="hljs-number">16379</span>也会被打开）<br><br><br><span class="hljs-built_in">N</span>个节点的集群中，每个节点由<span class="hljs-built_in">N</span>-<span class="hljs-number">1</span>个TCP传出连接，和<span class="hljs-built_in">N</span>-<span class="hljs-number">1</span>个TCP传入连接<br><br><br>节点使用gossip协议和配置更新机制来避免在正常情况下节点之间交换过多的消息<br></code></pre></td></tr></table></figure>
+<h3 id="Cluster总线"><a href="#Cluster总线" class="headerlink" title="Cluster总线"></a>Cluster总线</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs text">每个Redis Cluster节点有一个额外的TCP端口用来接受其他节点的连接<br><br><br>该端口往往是client连接的tcp端口+10000（端口6379监听客户端连接，那么它的集群总线端口16379也会被打开）<br><br><br>N个节点的集群中，每个节点由N-1个TCP传出连接，和N-1个TCP传入连接<br><br><br>节点使用gossip协议和配置更新机制来避免在正常情况下节点之间交换过多的消息<br></code></pre></td></tr></table></figure>
 
 <h3 id="Moved-重定向"><a href="#Moved-重定向" class="headerlink" title="Moved 重定向"></a>Moved 重定向</h3><ol>
 <li>槽命中：直接返回结果</li>
