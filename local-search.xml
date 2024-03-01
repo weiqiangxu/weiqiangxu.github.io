@@ -30,31 +30,6 @@
   
   
   <entry>
-    <title>http开启SSL</title>
-    <link href="/2024/02/22/network/%E5%BC%80http%E5%90%AFSSL/"/>
-    <url>/2024/02/22/network/%E5%BC%80http%E5%90%AFSSL/</url>
-    
-    <content type="html"><![CDATA[<h3 id="1-使用Gin搭建服务支持https访问"><a href="#1-使用Gin搭建服务支持https访问" class="headerlink" title="1.使用Gin搭建服务支持https访问"></a>1.使用Gin搭建服务支持https访问</h3><h3 id="2-证书生成和绑定"><a href="#2-证书生成和绑定" class="headerlink" title="2.证书生成和绑定"></a>2.证书生成和绑定</h3>]]></content>
-    
-    
-    <categories>
-      
-      <category>kubernetes</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>kubernetes</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
     <title>配置Nginx域名指向不同的服务</title>
     <link href="/2024/01/19/cni/%E9%85%8D%E7%BD%AENginx%E5%9F%9F%E5%90%8D%E6%8C%87%E5%90%91%E4%B8%8D%E5%90%8C%E7%9A%84%E6%9C%8D%E5%8A%A1/"/>
     <url>/2024/01/19/cni/%E9%85%8D%E7%BD%AENginx%E5%9F%9F%E5%90%8D%E6%8C%87%E5%90%91%E4%B8%8D%E5%90%8C%E7%9A%84%E6%9C%8D%E5%8A%A1/</url>
