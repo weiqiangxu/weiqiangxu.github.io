@@ -24,7 +24,7 @@
 <meta property="og:description" content="缓存一致性并发如何带来缓存一致性的问题123456同时发起A|B两个请求A更新值为1并记录到缓存B更新值为2并记录到缓存正确的情况：数据库和缓存都为2实际的情况：缓存先被B更新为2，然后又被A更新为1  策略1234写：更新数据库后删除缓存  或  先删除缓存再更新数据库读：未命中缓存就更新缓存  先删除缓存再更新数据库异常情形1234A先删除缓存B读取值为20B更新缓存为20A更新数据库为21">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-08T12:17:57.951Z">
-<meta property="article:modified_time" content="2024-02-26T10:04:00.907Z">
+<meta property="article:modified_time" content="2024-03-05T10:30:49.793Z">
 <meta property="article:author" content="xuweiqiang">
 <meta name="twitter:card" content="summary_large_image">
   
