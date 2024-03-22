@@ -25,7 +25,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://weiqiangxu.github.io/images/bg/network.png">
 <meta property="article:published_time" content="2024-01-19T10:40:12.000Z">
-<meta property="article:modified_time" content="2024-03-22T08:18:11.471Z">
+<meta property="article:modified_time" content="2024-03-22T08:19:04.097Z">
 <meta property="article:author" content="xuweiqiang">
 <meta property="article:tag" content="docker">
 <meta name="twitter:card" content="summary_large_image">
@@ -273,7 +273,7 @@
 <ol start="2">
 <li>解释一下openssl生成命令</li>
 </ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx.key -out nginx.crt<br><br>openssl req: 此命令告诉 OpenSSL 我们要使用请求子命令。<br>-x509: 此选项指定我们要生成自签名证书，而不是证书签名请求 (CSR)。<br>-nodes: 此选项告诉 OpenSSL 不要在证书本身中包含私钥信息。私钥将存储在单独的文件中。<br>-days 365: 此选项将证书的有效期设置为 365 天（一年）。<br>-newkey rsa:2048: 此选项告诉 OpenSSL 生成一个新的 RSA 私钥，密钥大小为 2048 位。密钥将存储在由 -keyout 指定的文件中。<br>-keyout nginx.key: 此选项指定生成私钥的文件名。在这种情况下，它将命名为 nginx.key。<br>-out nginx.crt: 此选项指定生成自签名证书的文件名。在这种情况下，它将命名为 nginx.crt。<br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx.key -out nginx.crt<br><br>openssl req: 此命令告诉 OpenSSL 我们要使用请求子命令。<br>-x509: 此选项指定我们要生成自签名证书，而不是证书签名请求 (CSR)。<br>-nodes: 此选项告诉 OpenSSL 不要在证书本身中包含私钥信息。私钥将存储在单独的文件中。<br>-days 365: 此选项将证书的有效期设置为 365 天（一年）。<br>-newkey rsa:2048: 此选项告诉 OpenSSL 生成一个新的 RSA 私钥，密钥大小为 2048 位<br>          密钥将存储在由 -keyout 指定的文件中。<br>-keyout nginx.key: 此选项指定生成私钥的文件名。在这种情况下，它将命名为 nginx.key。<br>-out nginx.crt: 此选项指定生成自签名证书的文件名。在这种情况下，它将命名为 nginx.crt。<br></code></pre></td></tr></table></figure>
 
 <h3 id="相关文档"><a href="#相关文档" class="headerlink" title="相关文档"></a>相关文档</h3><p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2288334">腾讯云&#x2F;Nginx配置HTTPS</a></p>
 
